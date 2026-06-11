@@ -56,7 +56,7 @@ export interface Club {
 export interface Adhesion {
   id: number;
   utilisateur: Utilisateur;
-  club: number;
+  club: Club;
   roles_club: RoleClub[];   // ManyToMany → tableau de rôles
   ajoute_par: Utilisateur;
   date_debut: string;

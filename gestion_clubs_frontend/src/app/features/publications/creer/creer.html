@@ -1,1 +1,433 @@
-<p>creer works!</p>
+<!-- src/app/features/publications/creer/creer.html -->
+
+<div class="min-h-screen bg-gray-50">
+
+  <app-header-app />
+
+  <div class="flex">
+    <app-sidebar />
+
+    <main class="flex-1 min-w-0 p-4 md:p-6 lg:p-8 page-fade-in">
+
+      <!-- Retour -->
+      <a [routerLink]="['/clubs', clubId()]"
+         class="inline-flex items-center gap-1.5 text-sm
+                text-gray-500 hover:text-primary-700
+                transition-colors duration-200 mb-6">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor"
+             viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round"
+                stroke-width="2" d="M15 19l-7-7 7-7"/>
+        </svg>
+        Retour au tableau de bord
+      </a>
+
+      <!-- Titre page -->
+      <div class="mb-8">
+        <h1 class="text-2xl md:text-3xl font-bold text-gray-900">
+          Nouvelle publication
+        </h1>
+        <p class="text-sm text-gray-500 mt-1">
+          Partagez les actualités ou les événements de votre club
+          avec la communauté ISJ.
+        </p>
+      </div>
+
+      <!-- ══════════════════════════════════════════
+           SUCCÈS
+           ══════════════════════════════════════════ -->
+      @if (succes()) {
+        <div class="max-w-2xl mx-auto bg-white rounded-2xl
+                    border border-gray-100 p-10 text-center
+                    success-anim">
+          <div class="w-16 h-16 bg-green-100 rounded-full
+                      flex items-center justify-center mx-auto mb-4">
+            <svg class="w-8 h-8 text-green-600" fill="none"
+                 stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round"
+                    stroke-width="2" d="M5 13l4 4L19 7"/>
+            </svg>
+          </div>
+          <h2 class="text-xl font-bold text-gray-900 mb-2">
+            Publication soumise !
+          </h2>
+          <p class="text-sm text-gray-500 max-w-sm mx-auto">
+            Votre publication a été soumise avec succès.
+            Elle sera visible après validation
+            par l'administrateur.
+          </p>
+          <p class="text-xs text-gray-400 mt-4">
+            Redirection en cours...
+          </p>
+        </div>
+
+      } @else {
+
+        <div class="max-w-2xl mx-auto">
+
+          <!-- Card formulaire -->
+          <div class="bg-white rounded-2xl border border-gray-100
+                      p-6 md:p-8 form-anim">
+
+            <!-- Header card -->
+            <div class="flex items-start justify-between mb-6">
+              <div>
+                <h2 class="text-base font-bold text-gray-900">
+                  Détails du contenu
+                </h2>
+                <p class="text-sm text-gray-500 mt-0.5">
+                  Remplissez les informations essentielles
+                  de votre publication.
+                </p>
+              </div>
+              <div class="w-8 h-8 bg-purple-50 rounded-lg
+                          flex items-center justify-center shrink-0">
+                <svg class="w-4 h-4 text-primary-700" fill="none"
+                     stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955
+                           0 0112 2.944a11.955 11.955 0 01-8.618
+                           3.04A12.02 12.02 0 003 9c0 5.591 3.824
+                           10.29 9 11.622 5.176-1.332 9-6.03
+                           9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+                </svg>
+              </div>
+            </div>
+
+            <!-- Erreur -->
+            @if (erreur()) {
+              <div class="bg-red-50 border border-red-200
+                          rounded-xl px-4 py-3 text-sm text-red-600
+                          mb-5 flex items-center gap-2 error-shake">
+                <svg class="w-4 h-4 shrink-0" fill="none"
+                     stroke="currentColor" viewBox="0 0 24 24">
+                  <circle cx="12" cy="12" r="10"/>
+                  <path d="M12 8v4m0 4h.01"/>
+                </svg>
+                {{ erreur() }}
+              </div>
+            }
+
+            <form [formGroup]="formulaire" class="space-y-6">
+
+              <!-- Titre -->
+              <div>
+                <label class="block text-sm font-medium
+                              text-gray-700 mb-1.5">
+                  Titre de la publication
+                  <span class="text-red-500 ml-0.5">*</span>
+                </label>
+                <input type="text"
+                       formControlName="titre"
+                       placeholder="Ex: Conférence sur l'IA et la Robotique 2024"
+                       class="w-full px-4 py-3 border rounded-xl
+                              text-sm text-gray-900 placeholder-gray-400
+                              focus:outline-none focus:ring-2
+                              focus:ring-primary-700
+                              transition-all duration-200"
+                       [class.border-red-300]="titre?.invalid && titre?.touched"
+                       [class.border-gray-200]="!(titre?.invalid && titre?.touched)"/>
+                @if (titre?.invalid && titre?.touched) {
+                  <p class="text-xs text-red-500 mt-1">
+                    @if (titre?.errors?.['required']) {
+                      Le titre est obligatoire.
+                    } @else if (titre?.errors?.['minlength']) {
+                      Minimum 5 caractères.
+                    }
+                  </p>
+                }
+              </div>
+
+              <!-- Description -->
+              <div>
+                <label class="block text-sm font-medium
+                              text-gray-700 mb-1.5">
+                  Description détaillée
+                  <span class="text-red-500 ml-0.5">*</span>
+                </label>
+                <div class="relative">
+                  <textarea formControlName="description"
+                            rows="6"
+                            placeholder="Décrivez le contenu de votre publication en quelques lignes..."
+                            class="w-full px-4 py-3 border rounded-xl
+                                   text-sm text-gray-900
+                                   placeholder-gray-400 focus:outline-none
+                                   focus:ring-2 focus:ring-primary-700
+                                   transition-all duration-200 resize-none"
+                            [class.border-red-300]="description?.invalid && description?.touched"
+                            [class.border-gray-200]="!(description?.invalid && description?.touched)">
+                  </textarea>
+                  <!-- Compteur -->
+                  <span class="absolute bottom-3 right-3 text-xs
+                               text-gray-400 pointer-events-none"
+                        [class.text-red-400]="descriptionRestant < 50">
+                    {{ description?.value?.length ?? 0 }} /
+                    {{ MAX_DESCRIPTION }}
+                  </span>
+                </div>
+                @if (description?.invalid && description?.touched) {
+                  <p class="text-xs text-red-500 mt-1">
+                    Minimum 10 caractères.
+                  </p>
+                }
+              </div>
+
+              <!-- Upload image -->
+              <div>
+                <label class="block text-sm font-medium
+                              text-gray-700 mb-1.5">
+                  Image d'illustration
+                  <span class="text-xs text-gray-400 font-normal ml-1">
+                    (optionnel)
+                  </span>
+                </label>
+
+                @if (!imagePreview()) {
+                  <label class="block cursor-pointer upload-zone">
+                    <div class="border-2 border-dashed border-gray-200
+                                rounded-2xl p-8 text-center
+                                hover:border-primary-700
+                                hover:bg-purple-50/30
+                                transition-all duration-300">
+                      <div class="w-12 h-12 bg-gray-100 rounded-xl
+                                  flex items-center justify-center
+                                  mx-auto mb-3">
+                        <svg class="w-6 h-6 text-gray-400" fill="none"
+                             stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round"
+                                stroke-linejoin="round" stroke-width="1.5"
+                                d="M4 16l4.586-4.586a2 2 0 012.828 0
+                                   L16 16m-2-2l1.586-1.586a2 2 0 012.828
+                                   0L20 14m-6-6h.01M6 20h12a2 2 0 002-2
+                                   V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2
+                                   2 0 002 2z"/>
+                        </svg>
+                      </div>
+                      <p class="text-sm font-medium text-gray-600 mb-1">
+                        Cliquez pour ajouter ou glissez-déposez
+                      </p>
+                      <p class="text-xs text-gray-400">
+                        PNG, JPG ou WEBP (Max. 5Mo)
+                      </p>
+                    </div>
+                    <input type="file" class="hidden"
+                           accept="image/png,image/jpeg,image/webp"
+                           (change)="onImageChange($event)"/>
+                  </label>
+                } @else {
+                  <!-- Aperçu image -->
+                  <div class="relative rounded-2xl overflow-hidden
+                              image-preview-anim">
+                    <img [src]="imagePreview()!" alt="Aperçu"
+                         class="w-full h-48 object-cover rounded-2xl"/>
+                    <div class="absolute inset-0 bg-black/20
+                                flex items-center justify-center
+                                opacity-0 hover:opacity-100
+                                transition-opacity duration-200">
+                      <button type="button"
+                              (click)="supprimerImage()"
+                              class="bg-red-500 hover:bg-red-600
+                                     text-white text-sm font-medium
+                                     px-4 py-2 rounded-lg
+                                     transition-colors duration-200
+                                     flex items-center gap-2">
+                        <svg class="w-4 h-4" fill="none"
+                             stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round"
+                                stroke-linejoin="round" stroke-width="2"
+                                d="M19 7l-.867 12.142A2 2 0 0116.138
+                                   21H7.862a2 2 0 01-1.995-1.858L5
+                                   7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1
+                                   h-4a1 1 0 00-1 1v3M4 7h16"/>
+                        </svg>
+                        Supprimer
+                      </button>
+                    </div>
+                  </div>
+                }
+              </div>
+
+              <!-- Toggle événement -->
+              <div class="flex items-center justify-between
+                          p-4 border border-gray-200 rounded-xl
+                          toggle-row"
+                   [class.border-primary-700]="estEvenement()"
+                   [class.bg-purple-50]="estEvenement()">
+                <div>
+                  <p class="text-sm font-semibold text-gray-900">
+                    C'est un événement ?
+                  </p>
+                  <p class="text-xs text-gray-500 mt-0.5">
+                    Activez cette option pour spécifier des dates
+                    et horaires.
+                  </p>
+                </div>
+                <button type="button"
+                        (click)="toggleEvenement()"
+                        class="relative inline-flex h-6 w-11
+                               shrink-0 cursor-pointer rounded-full
+                               border-2 border-transparent
+                               transition-colors duration-300 ease-in-out
+                               focus:outline-none"
+                        [class.bg-primary-700]="estEvenement()"
+                        [class.bg-gray-200]="!estEvenement()">
+                  <span class="pointer-events-none inline-block
+                               h-5 w-5 rounded-full bg-white shadow-sm
+                               ring-0 transition-transform duration-300"
+                        [class.translate-x-5]="estEvenement()"
+                        [class.translate-x-0]="!estEvenement()">
+                  </span>
+                </button>
+              </div>
+
+              <!-- Dates événement -->
+              @if (estEvenement()) {
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4
+                            dates-anim">
+                  <div>
+                    <label class="block text-sm font-medium
+                                  text-gray-700 mb-1.5">
+                      Date de début
+                      <span class="text-red-500 ml-0.5">*</span>
+                    </label>
+                    <input type="datetime-local"
+                           formControlName="date_debut"
+                           class="w-full px-4 py-3 border border-gray-200
+                                  rounded-xl text-sm text-gray-900
+                                  focus:outline-none focus:ring-2
+                                  focus:ring-primary-700
+                                  transition-all duration-200"/>
+                  </div>
+                  <div>
+                    <label class="block text-sm font-medium
+                                  text-gray-700 mb-1.5">
+                      Date de fin
+                      <span class="text-red-500 ml-0.5">*</span>
+                    </label>
+                    <input type="datetime-local"
+                           formControlName="date_fin"
+                           class="w-full px-4 py-3 border border-gray-200
+                                  rounded-xl text-sm text-gray-900
+                                  focus:outline-none focus:ring-2
+                                  focus:ring-primary-700
+                                  transition-all duration-200"/>
+                  </div>
+                </div>
+              }
+
+              <!-- Note de validation -->
+              <div class="flex items-start gap-3 bg-purple-50
+                          border-l-4 border-primary-700
+                          rounded-r-xl px-4 py-3">
+                <svg class="w-4 h-4 text-primary-700 shrink-0 mt-0.5"
+                     fill="none" stroke="currentColor"
+                     viewBox="0 0 24 24">
+                  <circle cx="12" cy="12" r="10"/>
+                  <path d="M12 6v6l4 2"/>
+                </svg>
+                <div>
+                  <p class="text-sm font-semibold text-primary-700">
+                    Note de validation
+                  </p>
+                  <p class="text-xs text-primary-700 mt-0.5
+                             leading-relaxed">
+                    Votre publication sera soumise à une revue par
+                    l'administration de l'ISJ. Elle ne sera visible
+                    sur la plateforme qu'après validation
+                    par un modérateur.
+                  </p>
+                </div>
+              </div>
+
+            </form>
+
+          </div>
+
+          <!-- Boutons action -->
+          <div class="flex items-center justify-between mt-5">
+
+            <a [routerLink]="['/clubs', clubId()]"
+               class="inline-flex items-center gap-2 text-sm
+                      font-medium text-gray-500 border border-gray-200
+                      px-5 py-2.5 rounded-xl hover:border-gray-300
+                      hover:text-gray-700 transition-all duration-200">
+              Annuler
+            </a>
+
+            <button (click)="soumettre()"
+                    [disabled]="chargement()"
+                    class="inline-flex items-center gap-2
+                           bg-primary-700 hover:bg-primary-800
+                           disabled:bg-primary-400 text-white
+                           font-semibold px-6 py-2.5 rounded-xl
+                           transition-all duration-200 btn-submit">
+              @if (chargement()) {
+                <svg class="w-4 h-4 animate-spin" fill="none"
+                     viewBox="0 0 24 24">
+                  <circle class="opacity-25" cx="12" cy="12" r="10"
+                          stroke="currentColor" stroke-width="4"/>
+                  <path class="opacity-75" fill="currentColor"
+                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0
+                           12h4zm2 5.291A7.962 7.962 0 014 12H0c0
+                           3.042 1.135 5.824 3 7.938l3-2.647z"/>
+                </svg>
+                Soumission...
+              } @else {
+                <svg class="w-4 h-4" fill="none"
+                     stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955
+                           0 0112 2.944a11.955 11.955 0 01-8.618
+                           3.04A12.02 12.02 0 003 9c0 5.591 3.824
+                           10.29 9 11.622 5.176-1.332 9-6.03
+                           9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+                </svg>
+                Soumettre pour validation
+              }
+            </button>
+
+          </div>
+
+          <!-- Footer info -->
+          <div class="flex items-center justify-center gap-6
+                      mt-6 text-xs text-gray-400">
+            <span class="flex items-center gap-1.5">
+              <svg class="w-3.5 h-3.5" fill="none"
+                   stroke="currentColor" viewBox="0 0 24 24">
+                <circle cx="12" cy="12" r="10"/>
+                <path d="M12 8v4m0 4h.01"/>
+              </svg>
+              Format Markdown supporté
+            </span>
+            <span class="flex items-center gap-1.5">
+              <svg class="w-3.5 h-3.5" fill="none"
+                   stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955
+                         0 0112 2.944a11.955 11.955 0 01-8.618
+                         3.04A12.02 12.02 0 003 9c0 5.591 3.824
+                         10.29 9 11.622 5.176-1.332 9-6.03
+                         9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+              </svg>
+              Hébergement sécurisé ISJ
+            </span>
+          </div>
+
+        </div>
+      }
+
+    </main>
+  </div>
+
+  <!-- Footer -->
+  <footer class="ml-0 md:ml-52 py-4 px-6 border-t border-gray-100">
+    <p class="text-xs text-gray-400 text-center">
+      © {{ annee }} ClubISJ - Institut Universitaire Saint Jean
+      de Yaoundé. Tous droits réservés.
+    </p>
+  </footer>
+
+</div>

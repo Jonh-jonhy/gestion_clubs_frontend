@@ -1,0 +1,112 @@
+<!-- Header fixe — pages connectées -->
+
+<!-- Dans header-app.html — ajoute le bouton hamburger -->
+
+<!-- Bouton hamburger mobile (à gauche du logo) -->
+<div class="max-w-screen-xl mx-auto flex items-center justify-between">
+
+  <div class="flex items-center gap-3">
+
+    <!-- Bouton hamburger — visible uniquement sur mobile -->
+    <button class="md:hidden w-9 h-9 flex items-center justify-center
+                   rounded-lg border border-gray-200 text-gray-600
+                   hover:bg-gray-50 hover:border-primary-700
+                   hover:text-primary-700 transition-all duration-200"
+            (click)="toggleSidebar()">
+      <svg class="w-5 h-5" fill="none" stroke="currentColor"
+           viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round"
+              stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+      </svg>
+    </button>
+
+    <!-- Logo -->
+    <a routerLink="/dashboard"
+       class="flex items-center gap-2 logo-hover">
+      <div class="w-8 h-8 bg-primary-700 rounded-lg
+                  flex items-center justify-center shrink-0
+                  logo-icon-anim">
+        <svg class="w-5 h-5 text-white" fill="none"
+             stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round"
+                stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+        </svg>
+      </div>
+      <span class="text-base font-bold text-gray-900
+                   hidden sm:block">
+        ClubISJ
+      </span>
+    </a>
+
+  </div>
+
+  <!-- Infos utilisateur -->
+  <div class="flex items-center gap-3 user-fade-in">
+    <!-- ... reste du code header ... -->
+  </div>
+
+</div>
+<header class="fixed top-0 left-0 right-0 z-50
+               bg-white/95 backdrop-blur-sm
+               border-b border-gray-100
+               px-4 md:px-6 py-3
+               header-slide-down">
+
+  <div class="max-w-screen-xl mx-auto
+              flex items-center justify-between">
+
+    <!-- Logo -->
+    <a routerLink="/dashboard"
+       class="flex items-center gap-2 logo-hover">
+      <div class="w-8 h-8 bg-primary-700 rounded-lg
+                  flex items-center justify-center shrink-0
+                  logo-icon-anim">
+        <svg class="w-5 h-5 text-white" fill="none"
+             stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round"
+                stroke-width="2"
+                d="M13 10V3L4 14h7v7l9-11h-7z"/>
+        </svg>
+      </div>
+      <span class="text-base font-bold text-gray-900
+                   hidden sm:block">
+        ClubISJ
+      </span>
+    </a>
+
+    <!-- Infos utilisateur -->
+    <div class="flex items-center gap-3 user-fade-in">
+
+      <!-- Nom + Rôle — masqué sur très petit écran -->
+      <div class="hidden sm:flex flex-col items-end">
+        <span class="text-sm font-semibold text-gray-900">
+          {{ authService.utilisateur()?.prenom }}
+          {{ authService.utilisateur()?.nom }}
+        </span>
+        <span class="text-xs text-gray-500">
+          {{ roleLabel }}
+        </span>
+      </div>
+
+      <!-- Avatar -->
+      <div class="w-9 h-9 rounded-full
+                  bg-gradient-to-br from-primary-700 to-primary-500
+                  flex items-center justify-center
+                  cursor-pointer avatar-hover shrink-0">
+        @if (authService.utilisateur()?.photo_profil) {
+          <img [src]="authService.utilisateur()?.photo_profil"
+               [alt]="initiales"
+               class="w-full h-full rounded-full object-cover"/>
+        } @else {
+          <span class="text-xs font-bold text-white">
+            {{ initiales }}
+          </span>
+        }
+      </div>
+
+    </div>
+  </div>
+</header>
+
+<!-- Spacer pour compenser le header fixed -->
+<div class="h-14"></div>

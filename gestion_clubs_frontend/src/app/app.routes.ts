@@ -71,30 +71,62 @@ export const routes: Routes = [
       import('./features/notifications/notifications')
         .then(m => m.Notifications),
   },
-
+  {
+    path: 'clubs/:id/publication',
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import('./features/publications/creer/creer')
+        .then(m => m.CreerPublication),
+  },
   // ── Pages admin uniquement ────────────────────────────────────
   {
     path: 'admin',
     canActivate: [adminGuard],
     loadComponent: () =>
       import('./features/admin/dashboard/dashboard')
-        .then(m => m.Dashboard),
+        .then(m => m.AdminDashboard),
   },
   {
     path: 'admin/clubs',
     canActivate: [adminGuard],
     loadComponent: () =>
       import('./features/admin/clubs/clubs')
-        .then(m => m.Clubs),
+        .then(m => m.AdminClubs),
   },
   {
     path: 'admin/publications',
     canActivate: [adminGuard],
     loadComponent: () =>
       import('./features/admin/publications/publications')
-        .then(m => m.Publications),
+        .then(m => m.AdminPublications),
   },
+  {
+  path: 'clubs',
+  canActivate: [authGuard],
+  loadComponent: () =>
+    import('./features/clubs/liste/liste')
+      .then(m => m.ListeClubs),
+},
+{
+  path: 'admin/clubs',
+  canActivate: [adminGuard],
+  loadComponent: () =>
+    import('./features/admin/clubs/clubs')
+      .then(m => m.AdminClubs),
+},
+
+{
+  path: 'publications/:id',
+  loadComponent: () =>
+    import('./features/publications/detail/detail')
+      .then(m => m.DetailPublication),
+},
 
   // ── Redirection par défaut ────────────────────────────────────
-  { path: '**', redirectTo: '' },
+  { path: '**',
+    loadComponent: () =>
+    import('./features/not-found/not-found')
+      .then(m => m.NotFound)
+  }
+  ,
 ];

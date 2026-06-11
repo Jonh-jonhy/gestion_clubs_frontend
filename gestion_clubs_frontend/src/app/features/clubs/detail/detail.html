@@ -1,1 +1,617 @@
-<p>detail works!</p>
+<!-- src/app/features/clubs/detail/detail.html -->
+
+<div class="min-h-screen bg-gray-50">
+
+  <app-header-app />
+
+  <div class="flex">
+    <app-sidebar />
+
+    <!-- Contenu principal -->
+    <main class="flex-1 min-w-0 p-4 md:p-6 lg:p-8 page-fade-in">
+
+      @if (chargement()) {
+        <!-- Skeleton loader -->
+        <div class="space-y-4">
+          <div class="skeleton h-8 w-64 rounded-xl"></div>
+          <div class="skeleton h-4 w-48 rounded-xl"></div>
+        </div>
+
+      } @else if (club()) {
+
+        <!-- ══════════════════════════════════════════
+             HEADER DU CLUB
+             ══════════════════════════════════════════ -->
+        <div class="flex flex-col sm:flex-row sm:items-start
+                    sm:justify-between gap-4 mb-8 header-anim">
+
+          <div>
+            <div class="flex items-center gap-3 mb-1 flex-wrap">
+              <h1 class="text-2xl md:text-3xl font-bold text-gray-900">
+                {{ club()!.nom }}
+              </h1>
+              <app-badge-statut [statut]="club()!.statut" />
+            </div>
+            <p class="text-sm text-gray-500">
+              {{ club()!.filiere_display }}
+            </p>
+          </div>
+
+          <!-- Actions (si président) -->
+          @if (estPresident) {
+            <div class="flex items-center gap-2 shrink-0">
+              <button class="inline-flex items-center gap-1.5
+                             text-sm font-medium text-gray-600
+                             border border-gray-200 px-4 py-2
+                             rounded-lg hover:border-primary-700
+                             hover:text-primary-700
+                             transition-all duration-200">
+                <svg class="w-4 h-4" fill="none"
+                     stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002
+                           2h11a2 2 0 002-2v-5m-1.414-9.414a2
+                           2 0 112.828 2.828L11.828 15H9v-2.828
+                           l8.586-8.586z"/>
+                </svg>
+                Modifier
+              </button>
+              <button class="inline-flex items-center gap-1.5
+                             text-sm font-medium text-gray-600
+                             border border-gray-200 px-4 py-2
+                             rounded-lg hover:border-primary-700
+                             hover:text-primary-700
+                             transition-all duration-200">
+                <svg class="w-4 h-4" fill="none"
+                     stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M8.684 13.342C8.886 12.938 9 12.482
+                           9 12c0-.482-.114-.938-.316-1.342m0
+                           2.684a3 3 0 110-2.684m0 2.684l6.632
+                           3.316m-6.632-6l6.632-3.316m0 0a3 3
+                           0 105.367-2.684 3 3 0 00-5.367
+                           2.684zm0 9.316a3 3 0 105.368 2.684
+                           3 3 0 00-5.368-2.684z"/>
+                </svg>
+                Partager
+              </button>
+            </div>
+          }
+        </div>
+
+        <!-- ══════════════════════════════════════════
+             GRILLE PRINCIPALE : 3 colonnes
+             ══════════════════════════════════════════ -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+          <!-- ── Colonne gauche : Infos club ────────────── -->
+          <div class="lg:col-span-1 space-y-4 col-anim"
+               style="animation-delay: 0.1s">
+
+            <div class="bg-white rounded-2xl border border-gray-100 p-6">
+
+              <!-- Logo + nom -->
+              <div class="flex flex-col items-center text-center mb-6">
+                <div class="w-20 h-20 rounded-full bg-purple-50
+                            border-4 border-purple-100
+                            flex items-center justify-center mb-3
+                            logo-pulse">
+                  @if (club()!.logo) {
+                    <img [src]="club()!.logo" [alt]="club()!.nom"
+                         class="w-full h-full rounded-full object-cover"/>
+                  } @else {
+                    <span class="text-3xl font-black text-primary-700">
+                      {{ club()!.nom[0] }}
+                    </span>
+                  }
+                </div>
+                <h2 class="font-bold text-gray-900">
+                  {{ club()!.nom }}
+                </h2>
+                <a class="text-sm text-primary-700 font-medium mt-0.5">
+                  {{ club()!.filiere_display }}
+                </a>
+                @if (monAdhesion) {
+                  <div class="mt-2">
+                    <app-badge-role
+                      [role]="getPremierRole(monAdhesion)" />
+                  </div>
+                }
+              </div>
+
+              <!-- Mission -->
+              <div class="mb-5">
+                <p class="text-xs font-bold text-gray-400 uppercase
+                          tracking-wider mb-2">
+                  Mission
+                </p>
+                <p class="text-sm text-gray-600 leading-relaxed italic">
+                  "{{ club()!.mission }}"
+                </p>
+              </div>
+
+              <!-- Stats -->
+              <div class="flex items-center gap-2 text-sm
+                          text-gray-500 pt-4 border-t border-gray-50">
+                <svg class="w-4 h-4 text-primary-700" fill="none"
+                     stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M17 20h5v-2a3 3 0 00-5.356-1.857M17
+                           20H7m10 0v-2c0-.656-.126-1.283-.356
+                           -1.857M7 20H2v-2a3 3 0 015.356-1.857M7
+                           20v-2c0-.656.126-1.283.356-1.857m0 0a5.002
+                           5.002 0 019.288 0M15 7a3 3 0 11-6 0 3
+                           3 0 016 0z"/>
+                </svg>
+                <span class="font-semibold text-gray-900">
+                  {{ club()!.nombre_membres }}
+                </span>
+                Membres Actifs
+              </div>
+
+              <!-- Bouton gérer (président) -->
+              @if (estPresident) {
+                <button (click)="ouvrirModalAjout()"
+                        class="mt-4 w-full flex items-center
+                               justify-center gap-2 bg-primary-700
+                               hover:bg-primary-800 text-white
+                               text-sm font-semibold py-2.5
+                               rounded-xl transition-colors
+                               duration-200 btn-pulse">
+                  <svg class="w-4 h-4" fill="none"
+                       stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round"
+                          stroke-width="2" d="M12 4v16m8-8H4"/>
+                  </svg>
+                  Gérer le club
+                </button>
+              }
+
+            </div>
+          </div>
+
+          <!-- ── Colonne centrale : Publications ────────── -->
+          <div class="lg:col-span-1 col-anim"
+               style="animation-delay: 0.2s">
+
+            <div class="flex items-center justify-between mb-4">
+              <h2 class="text-base font-bold text-gray-900">
+                Publications
+              </h2>
+              @if (peutPublier) {
+                <a [routerLink]="['/clubs', clubId, 'publication']"
+                   class="inline-flex items-center gap-1.5
+                          bg-primary-700 hover:bg-primary-800
+                          text-white text-xs font-semibold
+                          px-3 py-2 rounded-lg
+                          transition-colors duration-200">
+                  <svg class="w-3.5 h-3.5" fill="none"
+                       stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round"
+                          stroke-width="2" d="M12 4v16m8-8H4"/>
+                  </svg>
+                  Nouvelle publication
+                </a>
+              }
+            </div>
+
+            <div class="bg-white rounded-2xl border border-gray-100
+                        overflow-hidden">
+
+              @if (publications().length === 0) {
+                <div class="p-8 text-center">
+                  <div class="w-10 h-10 bg-gray-50 rounded-full
+                              flex items-center justify-center
+                              mx-auto mb-3">
+                    <svg class="w-5 h-5 text-gray-300" fill="none"
+                         stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round"
+                            stroke-linejoin="round" stroke-width="2"
+                            d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5
+                               a2 2 0 012-2h5.586a1 1 0 01.707.293
+                               l5.414 5.414a1 1 0 01.293.707V19a2
+                               2 0 01-2 2z"/>
+                    </svg>
+                  </div>
+                  <p class="text-sm text-gray-400">
+                    Aucune publication.
+                  </p>
+                </div>
+              } @else {
+                @for (pub of publications(); track pub.id;
+                      let last = $last) {
+                  <div class="px-5 py-4 hover:bg-gray-50
+                              transition-colors duration-150 pub-row"
+                       [class.border-b]="!last"
+                       [class.border-gray-50]="!last">
+                    <div class="flex items-start justify-between gap-3">
+                      <div class="min-w-0">
+                        <p class="text-sm font-medium text-gray-900
+                                   truncate">
+                          {{ pub.titre }}
+                        </p>
+                        <p class="text-xs text-gray-400 mt-0.5">
+                          {{ pub.auteur.prenom }} •
+                          {{ dateRelative(pub.date_creation) }}
+                        </p>
+                      </div>
+                      <app-badge-statut [statut]="pub.statut" />
+                    </div>
+                    <!-- Motif rejet -->
+                    @if (pub.statut === 'rejetee' && pub.motif_rejet) {
+                      <p class="text-xs text-red-500 mt-2 italic">
+                        Motif : {{ pub.motif_rejet }}
+                      </p>
+                    }
+                  </div>
+                }
+              }
+            </div>
+          </div>
+
+          <!-- ── Colonne droite : Membres ───────────────── -->
+          <div class="lg:col-span-1 col-anim"
+               style="animation-delay: 0.3s">
+
+            <div class="flex items-center justify-between mb-4">
+              <h2 class="text-base font-bold text-gray-900
+                         flex items-center gap-2">
+                <svg class="w-4 h-4 text-primary-700" fill="none"
+                     stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M17 20h5v-2a3 3 0 00-5.356-1.857M17
+                           20H7m10 0v-2c0-.656-.126-1.283-.356
+                           -1.857M7 20H2v-2a3 3 0 015.356-1.857M7
+                           20v-2c0-.656.126-1.283.356-1.857m0 0a5.002
+                           5.002 0 019.288 0M15 7a3 3 0 11-6 0 3
+                           3 0 016 0z"/>
+                </svg>
+                MEMBRES
+              </h2>
+              @if (estPresident) {
+                <button (click)="ouvrirModalAjout()"
+                        class="inline-flex items-center gap-1
+                               text-xs font-semibold text-primary-700
+                               hover:text-primary-800 transition-colors">
+                  <svg class="w-4 h-4" fill="none"
+                       stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round"
+                          stroke-width="2" d="M12 4v16m8-8H4"/>
+                  </svg>
+                  Ajouter
+                </button>
+              }
+            </div>
+
+            <div class="bg-white rounded-2xl border border-gray-100
+                        overflow-hidden">
+
+              @if (membres().length === 0) {
+                <div class="p-6 text-center text-sm text-gray-400">
+                  Aucun membre.
+                </div>
+              } @else {
+                @for (membre of membres().slice(0, 6);
+                      track membre.id; let i = $index) {
+                  <div class="flex items-center gap-3 px-4 py-3
+                              hover:bg-gray-50 transition-colors
+                              duration-150 membre-row"
+                       [style.animation-delay]="i * 0.05 + 's'">
+
+                    <!-- Avatar -->
+                    <div class="w-9 h-9 rounded-full
+                                bg-gradient-to-br from-primary-700
+                                to-primary-500 flex items-center
+                                justify-center shrink-0">
+                      <span class="text-xs font-bold text-white">
+                        {{ membre.utilisateur.prenom[0] }}
+                        {{ membre.utilisateur.nom[0] }}
+                      </span>
+                    </div>
+
+                    <!-- Nom + rôles -->
+                    <div class="flex-1 min-w-0">
+                      <p class="text-sm font-medium text-gray-900
+                                 truncate">
+                        {{ membre.utilisateur.prenom }}
+                        {{ membre.utilisateur.nom }}
+                      </p>
+                      <div class="flex flex-wrap gap-1 mt-0.5">
+                        @for (role of membre.roles_club; track role.id) {
+                          <app-badge-role [role]="role.libelle" />
+                        }
+                      </div>
+                    </div>
+
+                    <!-- Menu actions (président) -->
+                    @if (estPresident &&
+                         membre.utilisateur.id !==
+                         authService.utilisateur()?.id) {
+                      <div class="flex items-center gap-1">
+                        <button (click)="ouvrirModalRoles(membre)"
+                                class="p-1.5 rounded-lg text-gray-400
+                                       hover:text-primary-700
+                                       hover:bg-purple-50
+                                       transition-all duration-200"
+                                title="Gérer les rôles">
+                          <svg class="w-3.5 h-3.5" fill="none"
+                               stroke="currentColor"
+                               viewBox="0 0 24 24">
+                            <path stroke-linecap="round"
+                                  stroke-linejoin="round"
+                                  stroke-width="2"
+                                  d="M11 5H6a2 2 0 00-2 2v11a2
+                                     2 0 002 2h11a2 2 0 002-2v-5
+                                     m-1.414-9.414a2 2 0 112.828
+                                     2.828L11.828 15H9v-2.828
+                                     l8.586-8.586z"/>
+                          </svg>
+                        </button>
+                        <button (click)="retirerMembre(
+                                  membre.utilisateur.id)"
+                                class="p-1.5 rounded-lg text-gray-400
+                                       hover:text-red-500
+                                       hover:bg-red-50
+                                       transition-all duration-200"
+                                title="Retirer ce membre">
+                          <svg class="w-3.5 h-3.5" fill="none"
+                               stroke="currentColor"
+                               viewBox="0 0 24 24">
+                            <path stroke-linecap="round"
+                                  stroke-linejoin="round"
+                                  stroke-width="2"
+                                  d="M13 7a4 4 0 11-8 0 4 4 0
+                                     018 0zM9 14a6 6 0 00-6 6v1h12
+                                     v-1a6 6 0 00-6-6zM21 12h-6"/>
+                          </svg>
+                        </button>
+                      </div>
+                    }
+                  </div>
+                }
+
+                <!-- Voir tous les membres -->
+                @if (membres().length > 6) {
+                  <div class="px-4 py-3 border-t border-gray-50">
+                    <button class="text-xs text-primary-700
+                                   font-medium hover:text-primary-800
+                                   transition-colors">
+                      Voir tous les membres
+                      ({{ membres().length }})
+                    </button>
+                  </div>
+                }
+              }
+            </div>
+          </div>
+
+        </div>
+      }
+
+    </main>
+  </div>
+
+  <!-- ══════════════════════════════════════════════
+       MODAL — GÉRER LES RÔLES
+       ══════════════════════════════════════════════ -->
+  @if (modalRolesOuvert()) {
+    <div class="fixed inset-0 z-50 flex items-center
+                justify-center p-4 modal-backdrop"
+         (click)="fermerModalRoles()">
+
+      <div class="bg-white rounded-2xl shadow-xl w-full max-w-md
+                  modal-slide-up"
+           (click)="$event.stopPropagation()">
+
+        <!-- Header modal -->
+        <div class="flex items-start justify-between p-6
+                    border-b border-gray-100">
+          <div>
+            <h3 class="text-lg font-bold text-gray-900">
+              Gérer les rôles de
+              {{ membreSelectionne()?.utilisateur?.prenom }}
+              {{ membreSelectionne()?.utilisateur?.nom }}
+            </h3>
+            <p class="text-sm text-gray-500 mt-1">
+              Sélectionnez les rôles cumulables pour ce membre
+              au sein du club.
+            </p>
+          </div>
+          <button (click)="fermerModalRoles()"
+                  class="p-2 rounded-lg text-gray-400
+                         hover:text-gray-600 hover:bg-gray-100
+                         transition-all duration-200 ml-4">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor"
+                 viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round"
+                    stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+            </svg>
+          </button>
+        </div>
+
+        <!-- Avatar membre -->
+        <div class="flex items-center gap-3 px-6 py-4
+                    border-b border-gray-50">
+          <div class="w-10 h-10 rounded-full
+                      bg-gradient-to-br from-primary-700
+                      to-primary-500 flex items-center
+                      justify-center shrink-0">
+            <span class="text-sm font-bold text-white">
+              {{ membreSelectionne()?.utilisateur?.prenom?.[0] }}
+              {{ membreSelectionne()?.utilisateur?.nom?.[0] }}
+            </span>
+          </div>
+          <div>
+            <p class="font-semibold text-gray-900 text-sm">
+              {{ membreSelectionne()?.utilisateur?.prenom }}
+              {{ membreSelectionne()?.utilisateur?.nom }}
+            </p>
+            <p class="text-xs text-gray-400">
+              ID Membre: #{{ membreSelectionne()?.id }}
+            </p>
+          </div>
+        </div>
+
+        <!-- Rôles disponibles -->
+        <div class="p-6 space-y-3">
+          @for (role of rolesDisponibles; track role.id) {
+            <label class="flex items-center gap-3 p-3 rounded-xl
+                          border cursor-pointer transition-all
+                          duration-200 role-option"
+                   [class.border-primary-700]="
+                     rolesSelectionnes().includes(role.id)"
+                   [class.bg-purple-50]="
+                     rolesSelectionnes().includes(role.id)"
+                   [class.border-gray-200]="
+                     !rolesSelectionnes().includes(role.id)">
+              <input type="checkbox"
+                     [checked]="rolesSelectionnes().includes(role.id)"
+                     (change)="toggleRole(role.id)"
+                     class="w-4 h-4 accent-primary-700 rounded"/>
+              <span class="text-sm font-medium text-gray-900">
+                {{ role.libelle_display }}
+              </span>
+            </label>
+          }
+
+          <!-- Note président -->
+          <div class="flex items-start gap-2 bg-purple-50 border
+                      border-purple-200 rounded-xl p-3 mt-4">
+            <svg class="w-4 h-4 text-primary-700 shrink-0 mt-0.5"
+                 fill="none" stroke="currentColor"
+                 viewBox="0 0 24 24">
+              <circle cx="12" cy="12" r="10"/>
+              <path d="M12 16v-4m0-4h.01"/>
+            </svg>
+            <p class="text-xs text-primary-700 leading-relaxed">
+              <strong>Note :</strong> Le rôle de Président ne peut
+              pas être modifié ou transféré depuis cette interface.
+              Veuillez contacter l'administration pour toute
+              passation de pouvoir.
+            </p>
+          </div>
+        </div>
+
+        <!-- Actions -->
+        <div class="flex items-center justify-end gap-3 px-6 py-4
+                    border-t border-gray-100">
+          <button (click)="fermerModalRoles()"
+                  class="text-sm font-medium text-gray-600
+                         border border-gray-200 px-5 py-2.5
+                         rounded-xl hover:border-gray-300
+                         transition-colors duration-200">
+            Annuler
+          </button>
+          <button (click)="enregistrerRoles()"
+                  class="text-sm font-semibold text-white
+                         bg-primary-700 hover:bg-primary-800
+                         px-5 py-2.5 rounded-xl
+                         transition-colors duration-200
+                         btn-pulse">
+            Enregistrer les modifications
+          </button>
+        </div>
+
+      </div>
+    </div>
+  }
+
+  <!-- ══════════════════════════════════════════════
+       MODAL — AJOUTER UN MEMBRE
+       ══════════════════════════════════════════════ -->
+  @if (modalAjoutOuvert()) {
+    <div class="fixed inset-0 z-50 flex items-center
+                justify-center p-4 modal-backdrop"
+         (click)="fermerModalAjout()">
+
+      <div class="bg-white rounded-2xl shadow-xl w-full max-w-md
+                  modal-slide-up"
+           (click)="$event.stopPropagation()">
+
+        <div class="flex items-center justify-between p-6
+                    border-b border-gray-100">
+          <div>
+            <h3 class="text-lg font-bold text-gray-900">
+              Ajouter un membre
+            </h3>
+            <p class="text-sm text-gray-500 mt-1">
+              Entrez l'email de l'utilisateur à ajouter.
+            </p>
+          </div>
+          <button (click)="fermerModalAjout()"
+                  class="p-2 rounded-lg text-gray-400
+                         hover:bg-gray-100 transition-colors">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor"
+                 viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round"
+                    stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+            </svg>
+          </button>
+        </div>
+
+        <div class="p-6 space-y-4"
+             [formGroup]="formulaireAjout">
+
+          @if (erreurAjout()) {
+            <div class="bg-red-50 border border-red-200 rounded-xl
+                        px-4 py-3 text-sm text-red-600">
+              {{ erreurAjout() }}
+            </div>
+          }
+
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1.5">
+              Email de l'utilisateur
+            </label>
+            <input type="email"
+                   formControlName="email"
+                   placeholder="utilisateur@isj.cm"
+                   class="w-full px-4 py-3 border border-gray-200
+                          rounded-xl text-sm focus:outline-none
+                          focus:ring-2 focus:ring-primary-700
+                          transition-all duration-200"/>
+          </div>
+
+        </div>
+
+        <div class="flex items-center justify-end gap-3 px-6 py-4
+                    border-t border-gray-100">
+          <button (click)="fermerModalAjout()"
+                  class="text-sm font-medium text-gray-600
+                         border border-gray-200 px-5 py-2.5
+                         rounded-xl hover:border-gray-300
+                         transition-colors duration-200">
+            Annuler
+          </button>
+          <button (click)="ajouterMembre()"
+                  [disabled]="chargementAjout()"
+                  class="text-sm font-semibold text-white
+                         bg-primary-700 hover:bg-primary-800
+                         disabled:bg-primary-400
+                         px-5 py-2.5 rounded-xl
+                         transition-colors duration-200">
+            @if (chargementAjout()) {
+              Ajout en cours...
+            } @else {
+              Ajouter au club
+            }
+          </button>
+        </div>
+
+      </div>
+    </div>
+  }
+
+  <!-- Footer -->
+  <footer class="ml-0 md:ml-52 py-4 px-6 border-t border-gray-100">
+    <p class="text-xs text-gray-400 text-center">
+      © {{ annee }} ClubISJ - Institut Universitaire Saint Jean
+      de Yaoundé. Tous droits réservés.
+    </p>
+  </footer>
+
+</div>

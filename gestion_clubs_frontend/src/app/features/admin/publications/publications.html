@@ -1,1 +1,578 @@
-<p>publications works!</p>
+<!-- src/app/features/admin/publications/publications.html -->
+
+<div class="min-h-screen bg-gray-50">
+
+  <app-header-app />
+
+  <div class="flex">
+    <app-sidebar-admin
+      [publicationsEnAttente]="nbEnAttente()"/>
+
+    <main class="flex-1 min-w-0 p-4 md:p-6 lg:p-8 page-fade-in">
+
+      <!-- ══════════════════════════════════════════
+           EN-TÊTE
+           ══════════════════════════════════════════ -->
+      <div class="flex flex-col sm:flex-row sm:items-start
+                  sm:justify-between gap-4 mb-8 header-anim">
+        <div>
+          <h1 class="text-2xl md:text-3xl font-bold text-gray-900">
+            Gestion des Publications
+          </h1>
+          <p class="text-sm text-gray-500 mt-1">
+            Modérez les annonces et événements proposés
+            par les clubs de l'institut.
+          </p>
+        </div>
+
+        @if (nbEnAttente() > 0) {
+          <div class="inline-flex items-center gap-2 border
+                      border-orange-200 bg-orange-50 text-orange-700
+                      text-sm font-semibold px-4 py-2 rounded-xl
+                      shrink-0 badge-anim">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor"
+                 viewBox="0 0 24 24">
+              <circle cx="12" cy="12" r="10"/>
+              <path d="M12 6v6l4 2"/>
+            </svg>
+            {{ nbEnAttente() }} en attente
+          </div>
+        }
+      </div>
+
+      <!-- ══════════════════════════════════════════
+           FILTRES + RECHERCHE
+           ══════════════════════════════════════════ -->
+      <div class="flex flex-col sm:flex-row items-start
+                  sm:items-center justify-between gap-4 mb-6
+                  filter-anim">
+
+        <!-- Onglets filtre -->
+        <div class="flex items-center gap-1 bg-white border
+                    border-gray-200 rounded-xl p-1">
+          @for (onglet of onglets; track onglet.valeur) {
+            <button (click)="changerFiltre(onglet.valeur)"
+                    class="px-4 py-2 rounded-lg text-sm font-medium
+                           transition-all duration-200"
+                    [class.bg-primary-700]="filtreActif() === onglet.valeur"
+                    [class.text-white]="filtreActif() === onglet.valeur"
+                    [class.shadow-sm]="filtreActif() === onglet.valeur"
+                    [class.text-gray-500]="filtreActif() !== onglet.valeur"
+                    [class.hover:text-gray-700]="filtreActif() !== onglet.valeur">
+              {{ onglet.label }}
+            </button>
+          }
+        </div>
+
+        <!-- Recherche -->
+        <div class="relative w-full sm:w-64">
+          <div class="absolute inset-y-0 left-0 pl-3
+                      flex items-center pointer-events-none">
+            <svg class="w-4 h-4 text-gray-400" fill="none"
+                 stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0"/>
+            </svg>
+          </div>
+          <input type="text"
+                 [value]="recherche()"
+                 (input)="recherche.set($any($event.target).value)"
+                 placeholder="Rechercher par titre ou club..."
+                 class="w-full pl-10 pr-4 py-2.5 border border-gray-200
+                        rounded-xl text-sm text-gray-900
+                        placeholder-gray-400 focus:outline-none
+                        focus:ring-2 focus:ring-primary-700
+                        transition-all duration-200 bg-white"/>
+        </div>
+
+      </div>
+
+      <!-- ══════════════════════════════════════════
+           TABLEAU
+           ══════════════════════════════════════════ -->
+      <div class="bg-white rounded-2xl border border-gray-100
+                  overflow-hidden table-anim">
+
+        <!-- Header tableau -->
+        <div class="hidden md:grid grid-cols-12 gap-4 px-6 py-3
+                    border-b border-gray-100 bg-gray-50">
+          <div class="col-span-4 text-xs font-semibold text-gray-400
+                      uppercase tracking-wider">
+            Titre de la Publication
+          </div>
+          <div class="col-span-2 text-xs font-semibold text-gray-400
+                      uppercase tracking-wider">
+            Club émetteur
+          </div>
+          <div class="col-span-2 text-xs font-semibold text-gray-400
+                      uppercase tracking-wider">
+            Auteur
+          </div>
+          <div class="col-span-1 text-xs font-semibold text-gray-400
+                      uppercase tracking-wider flex items-center gap-1">
+            Date
+            <svg class="w-3 h-3" fill="none" stroke="currentColor"
+                 viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4
+                       4l-4-4"/>
+            </svg>
+          </div>
+          <div class="col-span-1 text-xs font-semibold text-gray-400
+                      uppercase tracking-wider">
+            Statut
+          </div>
+          <div class="col-span-2 text-xs font-semibold text-gray-400
+                      uppercase tracking-wider text-right">
+            Actions
+          </div>
+        </div>
+
+        <!-- ── Skeleton loader ─────────────────────── -->
+        @if (chargement()) {
+          @for (i of [1,2,3,4,5]; track i) {
+            <div class="flex items-center gap-4 px-6 py-4
+                        border-b border-gray-50">
+              <div class="flex-1 space-y-2">
+                <div class="skeleton h-3 w-2/3 rounded"></div>
+                <div class="skeleton h-2 w-1/4 rounded"></div>
+              </div>
+              <div class="skeleton h-6 w-20 rounded-full"></div>
+              <div class="skeleton h-8 w-24 rounded-lg"></div>
+            </div>
+          }
+
+        <!-- ── État vide ───────────────────────────── -->
+        } @else if (publicationsFiltrees().length === 0) {
+          <div class="py-16 text-center empty-anim">
+            <div class="w-14 h-14 bg-gray-100 rounded-full
+                        flex items-center justify-center mx-auto mb-4">
+              <svg class="w-7 h-7 text-gray-300" fill="none"
+                   stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round"
+                      stroke-width="1.5"
+                      d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2
+                         2 0 012-2h5.586a1 1 0 01.707.293l5.414
+                         5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+              </svg>
+            </div>
+            <p class="text-sm font-medium text-gray-900 mb-1">
+              Aucune publication
+            </p>
+            <p class="text-xs text-gray-400">
+              @if (filtreActif() === 'en_attente') {
+                Aucune publication en attente de validation.
+              } @else {
+                Aucune publication trouvée pour ce filtre.
+              }
+            </p>
+          </div>
+
+        <!-- ── Lignes publications ─────────────────── -->
+        } @else {
+          @for (pub of publicationsFiltrees(); track pub.id;
+                let i = $index; let last = $last) {
+
+            <!-- Version desktop (grid) -->
+            <div class="hidden md:grid grid-cols-12 gap-4 px-6 py-4
+                        items-center hover:bg-gray-50/50
+                        transition-colors duration-150 pub-row"
+                 [class.border-b]="!last"
+                 [class.border-gray-50]="!last"
+                 [style.animation-delay]="i * 0.05 + 's'">
+
+              <!-- Titre + numéro -->
+              <div class="col-span-4 min-w-0">
+                <p class="text-sm font-semibold text-gray-900
+                           truncate">
+                  {{ pub.titre }}
+                </p>
+                <p class="text-xs text-gray-400 mt-0.5">
+                  {{ getPubNum(i) }}
+                </p>
+              </div>
+
+              <!-- Club -->
+              <div class="col-span-2">
+                <span class="text-sm font-medium text-primary-700
+                             truncate block">
+                  {{ pub.club_nom }}
+                </span>
+              </div>
+
+              <!-- Auteur -->
+              <div class="col-span-2 flex items-center gap-2">
+                <div class="w-6 h-6 rounded-full bg-purple-100
+                            flex items-center justify-center
+                            shrink-0">
+                  <span class="text-xs font-bold text-primary-700">
+                    {{ pub.auteur.prenom[0] }}
+                  </span>
+                </div>
+                <span class="text-sm text-gray-700 truncate">
+                  {{ pub.auteur.prenom }} {{ pub.auteur.nom }}
+                </span>
+              </div>
+
+              <!-- Date -->
+              <div class="col-span-1">
+                <p class="text-xs text-gray-500">
+                  {{ formaterDate(pub.date_creation) }}
+                </p>
+              </div>
+
+              <!-- Statut -->
+              <div class="col-span-1">
+                <app-badge-statut [statut]="pub.statut" />
+              </div>
+
+              <!-- Actions -->
+              <div class="col-span-2 flex items-center
+                          justify-end gap-2">
+
+                @if (pub.statut === 'en_attente') {
+                  <!-- Bouton Publier -->
+                  <button (click)="publier(pub)"
+                          [disabled]="chargementAction() === pub.id"
+                          class="inline-flex items-center gap-1.5
+                                 text-xs font-semibold text-gray-600
+                                 border border-gray-200 px-3 py-1.5
+                                 rounded-lg hover:border-green-400
+                                 hover:text-green-600 hover:bg-green-50
+                                 transition-all duration-200
+                                 disabled:opacity-50 btn-action">
+                    @if (chargementAction() === pub.id) {
+                      <svg class="w-3 h-3 animate-spin" fill="none"
+                           viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12"
+                                r="10" stroke="currentColor"
+                                stroke-width="4"/>
+                        <path class="opacity-75" fill="currentColor"
+                              d="M4 12a8 8 0 018-8V0C5.373 0 0
+                                 5.373 0 12h4z"/>
+                      </svg>
+                    } @else {
+                      <svg class="w-3 h-3" fill="none"
+                           stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round"
+                              stroke-linejoin="round" stroke-width="2"
+                              d="M5 13l4 4L19 7"/>
+                      </svg>
+                    }
+                    Publier
+                  </button>
+
+                  <!-- Bouton Rejeter -->
+                  <button (click)="ouvrirModalRejet(pub)"
+                          [disabled]="chargementAction() === pub.id"
+                          class="inline-flex items-center gap-1.5
+                                 text-xs font-semibold text-white
+                                 bg-red-500 hover:bg-red-600 px-3
+                                 py-1.5 rounded-lg transition-all
+                                 duration-200 disabled:opacity-50
+                                 btn-action">
+                    <svg class="w-3 h-3" fill="none"
+                         stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round"
+                            stroke-linejoin="round" stroke-width="2"
+                            d="M6 18L18 6M6 6l12 12"/>
+                    </svg>
+                    Rejeter
+                  </button>
+
+                } @else {
+                  <!-- Bouton Voir -->
+                  <button class="p-1.5 rounded-lg text-gray-400
+                                 hover:text-primary-700 hover:bg-purple-50
+                                 transition-all duration-200">
+                    <svg class="w-4 h-4" fill="none"
+                         stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round"
+                            stroke-linejoin="round" stroke-width="2"
+                            d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                      <path stroke-linecap="round"
+                            stroke-linejoin="round" stroke-width="2"
+                            d="M2.458 12C3.732 7.943 7.523 5 12
+                               5c4.478 0 8.268 2.943 9.542 7-1.274
+                               4.057-5.064 7-9.542 7-4.477 0-8.268
+                               -2.943-9.542-7z"/>
+                    </svg>
+                  </button>
+                  <button class="p-1.5 rounded-lg text-gray-400
+                                 hover:text-gray-600 hover:bg-gray-100
+                                 transition-all duration-200">
+                    <svg class="w-4 h-4" fill="none"
+                         stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round"
+                            stroke-linejoin="round" stroke-width="2"
+                            d="M5 12h.01M12 12h.01M19 12h.01M6
+                               12a1 1 0 11-2 0 1 1 0 012 0zm7 0a1
+                               1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0
+                               11-2 0 1 1 0 012 0z"/>
+                    </svg>
+                  </button>
+                }
+
+              </div>
+
+            </div>
+
+            <!-- Version mobile (card) -->
+            <div class="md:hidden px-4 py-4 pub-row"
+                 [class.border-b]="!last"
+                 [class.border-gray-100]="!last">
+
+              <div class="flex items-start justify-between gap-3 mb-3">
+                <div class="min-w-0">
+                  <p class="text-sm font-semibold text-gray-900
+                             truncate">
+                    {{ pub.titre }}
+                  </p>
+                  <p class="text-xs text-primary-700 mt-0.5">
+                    {{ pub.club_nom }}
+                  </p>
+                </div>
+                <app-badge-statut [statut]="pub.statut" />
+              </div>
+
+              <div class="flex items-center justify-between">
+                <p class="text-xs text-gray-400">
+                  {{ pub.auteur.prenom }} •
+                  {{ formaterDate(pub.date_creation) }}
+                </p>
+                @if (pub.statut === 'en_attente') {
+                  <div class="flex gap-2">
+                    <button (click)="publier(pub)"
+                            class="text-xs font-semibold text-green-600
+                                   border border-green-300 px-3 py-1
+                                   rounded-lg hover:bg-green-50
+                                   transition-colors">
+                      Publier
+                    </button>
+                    <button (click)="ouvrirModalRejet(pub)"
+                            class="text-xs font-semibold text-white
+                                   bg-red-500 px-3 py-1 rounded-lg
+                                   hover:bg-red-600 transition-colors">
+                      Rejeter
+                    </button>
+                  </div>
+                }
+              </div>
+
+            </div>
+          }
+        }
+
+      </div>
+
+      <!-- ══════════════════════════════════════════
+           CARDS INFO BAS DE PAGE
+           ══════════════════════════════════════════ -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6
+                  info-cards-anim">
+
+        <div class="bg-purple-50 border border-purple-100
+                    rounded-2xl p-5 flex items-start gap-3">
+          <div class="w-8 h-8 bg-purple-100 rounded-lg
+                      flex items-center justify-center shrink-0">
+            <svg class="w-4 h-4 text-primary-700" fill="none"
+                 stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9
+                       0 0118 0z"/>
+            </svg>
+          </div>
+          <div>
+            <p class="text-sm font-bold text-primary-700 mb-1">
+              Processus de Validation
+            </p>
+            <p class="text-xs text-primary-700/70 leading-relaxed">
+              Les publications publiées deviennent immédiatement
+              visibles par tous les membres et visiteurs sur la
+              page des publications publiques.
+            </p>
+          </div>
+        </div>
+
+        <div class="bg-blue-50 border border-blue-100
+                    rounded-2xl p-5 flex items-start gap-3">
+          <div class="w-8 h-8 bg-blue-100 rounded-lg
+                      flex items-center justify-center shrink-0">
+            <svg class="w-4 h-4 text-blue-600" fill="none"
+                 stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2
+                       0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2
+                       2 0 01-2 2h-5l-5 5v-5z"/>
+            </svg>
+          </div>
+          <div>
+            <p class="text-sm font-bold text-blue-700 mb-1">
+              Motifs de Rejet
+            </p>
+            <p class="text-xs text-blue-700/70 leading-relaxed">
+              Le motif de rejet est envoyé au président du club
+              concerné par notification pour l'aider à corriger
+              sa soumission.
+            </p>
+          </div>
+        </div>
+
+        <div class="bg-gray-50 border border-gray-100
+                    rounded-2xl p-5 flex items-start gap-3">
+          <div class="w-8 h-8 bg-gray-100 rounded-lg
+                      flex items-center justify-center shrink-0">
+            <svg class="w-4 h-4 text-gray-500" fill="none"
+                 stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+              <path stroke-linecap="round" stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478
+                       0 8.268 2.943 9.542 7-1.274 4.057-5.064
+                       7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+            </svg>
+          </div>
+          <div>
+            <p class="text-sm font-bold text-gray-700 mb-1">
+              Aperçu Préalable
+            </p>
+            <p class="text-xs text-gray-500 leading-relaxed">
+              Il est recommandé de prévisualiser le contenu complet
+              avant toute action pour vérifier la qualité des
+              images et la véracité des dates.
+            </p>
+          </div>
+        </div>
+
+      </div>
+
+    </main>
+  </div>
+
+  <!-- ══════════════════════════════════════════
+       MODAL REJET
+       ══════════════════════════════════════════ -->
+  @if (modalRejetOuvert()) {
+    <div class="fixed inset-0 z-50 flex items-center
+                justify-center p-4 modal-backdrop"
+         (click)="fermerModalRejet()">
+
+      <div class="bg-white rounded-2xl shadow-xl w-full max-w-md
+                  modal-slide-up"
+           (click)="$event.stopPropagation()">
+
+        <!-- Header modal -->
+        <div class="flex items-start justify-between p-6
+                    border-b border-gray-100">
+          <div>
+            <h3 class="text-lg font-bold text-gray-900">
+              Rejeter la publication
+            </h3>
+            <p class="text-sm text-gray-500 mt-1 line-clamp-1">
+              "{{ publicationSelectionnee()?.titre }}"
+            </p>
+          </div>
+          <button (click)="fermerModalRejet()"
+                  class="p-2 rounded-lg text-gray-400
+                         hover:bg-gray-100 transition-colors ml-4">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor"
+                 viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round"
+                    stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+            </svg>
+          </button>
+        </div>
+
+        <!-- Corps modal -->
+        <div class="p-6" [formGroup]="formulaireRejet">
+
+          <!-- Avertissement -->
+          <div class="flex items-start gap-3 bg-red-50 border
+                      border-red-100 rounded-xl p-4 mb-5">
+            <svg class="w-5 h-5 text-red-500 shrink-0 mt-0.5"
+                 fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0
+                       2.502-1.667 1.732-3L13.732 4c-.77-1.333
+                       -2.694-1.333-3.464 0L3.34 16c-.77 1.333
+                       .192 3 1.732 3z"/>
+            </svg>
+            <p class="text-xs text-red-600 leading-relaxed">
+              Le motif sera envoyé au président du club
+              <strong>{{ publicationSelectionnee()?.club_nom }}</strong>
+              par notification. Soyez précis pour l'aider
+              à corriger sa publication.
+            </p>
+          </div>
+
+          <!-- Motif -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1.5">
+              Motif de rejet
+              <span class="text-red-500 ml-0.5">*</span>
+            </label>
+            <textarea formControlName="motif_rejet"
+                      rows="4"
+                      placeholder="Ex: Le contenu ne respecte pas la charte des clubs ISJ. Veuillez revoir la description et ajouter des informations sur l'organisateur..."
+                      class="w-full px-4 py-3 border rounded-xl
+                             text-sm text-gray-900 placeholder-gray-400
+                             focus:outline-none focus:ring-2
+                             focus:ring-red-400 resize-none
+                             transition-all duration-200"
+                      [class.border-red-300]="motifRejet?.invalid && motifRejet?.touched"
+                      [class.border-gray-200]="!(motifRejet?.invalid && motifRejet?.touched)">
+            </textarea>
+            @if (motifRejet?.invalid && motifRejet?.touched) {
+              <p class="text-xs text-red-500 mt-1">
+                Le motif est obligatoire (minimum 10 caractères).
+              </p>
+            }
+          </div>
+
+        </div>
+
+        <!-- Footer modal -->
+        <div class="flex items-center justify-end gap-3 px-6 py-4
+                    border-t border-gray-100">
+          <button (click)="fermerModalRejet()"
+                  class="text-sm font-medium text-gray-600
+                         border border-gray-200 px-5 py-2.5
+                         rounded-xl hover:border-gray-300
+                         transition-colors duration-200">
+            Annuler
+          </button>
+          <button (click)="confirmerRejet()"
+                  [disabled]="chargementAction() !== null"
+                  class="text-sm font-semibold text-white
+                         bg-red-500 hover:bg-red-600
+                         disabled:bg-red-300 px-5 py-2.5
+                         rounded-xl transition-all duration-200
+                         btn-rejeter">
+            @if (chargementAction() !== null) {
+              Rejet en cours...
+            } @else {
+              Rejeter la publication
+            }
+          </button>
+        </div>
+
+      </div>
+    </div>
+  }
+
+  <!-- Footer -->
+  <footer class="ml-0 md:ml-52 py-4 px-6 border-t border-gray-100">
+    <p class="text-xs text-gray-400 text-center">
+      © {{ annee }} ClubISJ - Institut Universitaire Saint Jean
+      de Yaoundé. Tous droits réservés.
+    </p>
+  </footer>
+
+</div>

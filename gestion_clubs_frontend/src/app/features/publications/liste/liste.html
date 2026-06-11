@@ -1,1 +1,456 @@
-<p>liste works!</p>
+<!-- src/app/features/publications/liste/liste.html -->
+
+<div class="min-h-screen flex flex-col bg-white">
+
+  <!-- Header public -->
+  <app-header-public />
+
+  <main class="flex-1">
+
+    <!-- ══════════════════════════════════════════
+         HERO SECTION
+         ══════════════════════════════════════════ -->
+    <section class="bg-white px-4 md:px-8 pt-10 pb-8
+                    border-b border-gray-100 hero-anim">
+      <div class="max-w-5xl mx-auto">
+
+        <p class="text-xs font-bold text-primary-700 uppercase
+                   tracking-widest mb-3">
+          Découvrez la vie étudiante
+        </p>
+
+        <h1 class="text-3xl md:text-4xl font-black text-gray-900
+                   mb-4 leading-tight">
+          Publications des
+          <span class="text-primary-700">Clubs ISJ</span>
+        </h1>
+
+        <p class="text-sm md:text-base text-gray-500 max-w-xl
+                   leading-relaxed">
+          Suivez toute l'actualité, les projets innovants et les
+          événements incontournables organisés par les étudiants
+          de l'Institut Universitaire Saint Jean.
+        </p>
+
+      </div>
+    </section>
+
+    <!-- ══════════════════════════════════════════
+         BARRE DE RECHERCHE + FILTRES
+         ══════════════════════════════════════════ -->
+    <section class="sticky top-14 z-30 bg-white/95 backdrop-blur-sm
+                    border-b border-gray-100 px-4 md:px-8 py-4
+                    filter-anim">
+      <div class="max-w-5xl mx-auto flex flex-col sm:flex-row
+                  items-center gap-3">
+
+        <!-- Recherche -->
+        <div class="relative flex-1 w-full">
+          <div class="absolute inset-y-0 left-0 pl-3
+                      flex items-center pointer-events-none">
+            <svg class="w-4 h-4 text-gray-400" fill="none"
+                 stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0"/>
+            </svg>
+          </div>
+          <input type="text"
+                 [value]="recherche()"
+                 (input)="onRecherche($any($event.target).value)"
+                 placeholder="Rechercher une publication..."
+                 class="w-full pl-10 pr-4 py-2.5 border border-gray-200
+                        rounded-xl text-sm text-gray-900
+                        placeholder-gray-400 focus:outline-none
+                        focus:ring-2 focus:ring-primary-700
+                        transition-all duration-200 bg-white"/>
+        </div>
+
+        <!-- Filtre par club -->
+        <div class="relative w-full sm:w-56 shrink-0">
+          <select [value]="clubSelectionne()"
+                  (change)="onClubChange($any($event.target).value)"
+                  class="w-full px-4 py-2.5 border border-gray-200
+                         rounded-xl text-sm text-gray-900
+                         focus:outline-none focus:ring-2
+                         focus:ring-primary-700 appearance-none
+                         bg-white cursor-pointer
+                         transition-all duration-200">
+            <option value="tous">Tous les clubs</option>
+            @for (club of clubs(); track club.id) {
+              <option [value]="club.id">{{ club.nom }}</option>
+            }
+          </select>
+          <div class="absolute inset-y-0 right-0 pr-3
+                      flex items-center pointer-events-none">
+            <svg class="w-4 h-4 text-gray-400" fill="none"
+                 stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round"
+                    stroke-width="2" d="M19 9l-7 7-7-7"/>
+            </svg>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ══════════════════════════════════════════
+         CONTENU PRINCIPAL
+         ══════════════════════════════════════════ -->
+    <section class="px-4 md:px-8 py-8">
+      <div class="max-w-5xl mx-auto">
+
+        <!-- Compteur résultats -->
+        @if (!chargement()) {
+          <div class="flex items-center justify-between mb-6">
+            <p class="text-sm text-gray-500">
+              Affichage de
+              <span class="font-semibold text-gray-900">
+                {{ publicationsFiltrees().length }}
+              </span>
+              publication{{ publicationsFiltrees().length > 1 ? 's' : '' }}
+            </p>
+            <span class="flex items-center gap-1.5 text-xs
+                         text-gray-400">
+              <svg class="w-3.5 h-3.5" fill="none"
+                   stroke="currentColor" viewBox="0 0 24 24">
+                <circle cx="12" cy="12" r="10"/>
+                <path d="M2 12h20"/>
+                <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3
+                         0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3
+                         15.3 0 0 1 4-10z"/>
+              </svg>
+              Bilingue FR / EN
+            </span>
+          </div>
+        }
+
+        <!-- ── Skeleton loader ─────────────────────────── -->
+        @if (chargement()) {
+          <div class="grid grid-cols-1 sm:grid-cols-2
+                      lg:grid-cols-3 gap-6">
+            @for (i of [1,2,3,4,5,6]; track i) {
+              <div class="bg-white rounded-2xl border border-gray-100
+                          overflow-hidden skeleton-card">
+                <div class="skeleton h-44 w-full"></div>
+                <div class="p-5 space-y-3">
+                  <div class="skeleton h-3 w-1/3 rounded"></div>
+                  <div class="skeleton h-5 w-full rounded"></div>
+                  <div class="skeleton h-3 w-4/5 rounded"></div>
+                  <div class="skeleton h-3 w-2/3 rounded"></div>
+                </div>
+              </div>
+            }
+          </div>
+
+        <!-- ── État vide ───────────────────────────────── -->
+        } @else if (publicationsFiltrees().length === 0) {
+          <div class="flex flex-col items-center justify-center
+                      py-20 text-center empty-anim">
+            <div class="w-16 h-16 bg-gray-100 rounded-full
+                        flex items-center justify-center mb-4">
+              <svg class="w-8 h-8 text-gray-300" fill="none"
+                   stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round"
+                      stroke-width="1.5"
+                      d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2
+                         2 0 012-2h5.586a1 1 0 01.707.293l5.414
+                         5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+              </svg>
+            </div>
+            <h3 class="text-lg font-bold text-gray-900 mb-2">
+              Aucune publication trouvée
+            </h3>
+            <p class="text-sm text-gray-500 max-w-xs">
+              @if (recherche()) {
+                Aucun résultat pour "{{ recherche() }}".
+                Essayez un autre terme.
+              } @else {
+                Aucune publication disponible pour le moment.
+              }
+            </p>
+            @if (recherche() || clubSelectionne() !== 'tous') {
+              <button (click)="onRecherche(''); onClubChange('tous')"
+                      class="mt-4 text-sm text-primary-700
+                             font-medium hover:text-primary-800
+                             transition-colors">
+                Réinitialiser les filtres
+              </button>
+            }
+          </div>
+
+        <!-- ── Grille publications ─────────────────────── -->
+        } @else {
+          <div class="grid grid-cols-1 sm:grid-cols-2
+                      lg:grid-cols-3 gap-6">
+            @for (pub of publicationsFiltrees(); track pub.id;
+                  let i = $index) {
+              <article class="bg-white rounded-2xl border
+                              border-gray-100 overflow-hidden
+                              hover:border-primary-200
+                              hover:shadow-lg transition-all
+                              duration-300 flex flex-col pub-card"
+                       [style.animation-delay]="i * 0.06 + 's'">
+
+                <!-- Image -->
+                <div class="relative h-44 bg-gray-100 overflow-hidden">
+                  @if (pub.image) {
+                    <img [src]="pub.image" [alt]="pub.titre"
+                         class="w-full h-full object-cover
+                                transition-transform duration-500
+                                hover:scale-105"/>
+                  } @else {
+                    <!-- Placeholder si pas d'image -->
+                    <div class="w-full h-full flex items-center
+                                justify-center bg-gradient-to-br
+                                from-purple-50 to-gray-100">
+                      <svg class="w-12 h-12 text-gray-300" fill="none"
+                           stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round"
+                              stroke-linejoin="round" stroke-width="1"
+                              d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5
+                                 a2 2 0 012-2h5.586a1 1 0 01.707.293
+                                 l5.414 5.414a1 1 0 01.293.707V19a2
+                                 2 0 01-2 2z"/>
+                      </svg>
+                    </div>
+                  }
+
+                  <!-- Badge événement -->
+                  @if (pub.est_evenement) {
+                    <div class="absolute top-3 right-3">
+                      <span class="inline-flex items-center gap-1
+                                   bg-primary-700 text-white text-xs
+                                   font-semibold px-2.5 py-1
+                                   rounded-full shadow-sm">
+                        <svg class="w-3 h-3" fill="none"
+                             stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round"
+                                stroke-linejoin="round" stroke-width="2"
+                                d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2
+                                   0 002-2V7a2 2 0 00-2-2H5a2 2 0
+                                   00-2 2v12a2 2 0 002 2z"/>
+                        </svg>
+                        Événement
+                      </span>
+                    </div>
+                  }
+                </div>
+
+                <!-- Contenu -->
+                <div class="p-5 flex flex-col flex-1">
+
+                  <!-- Club + date -->
+                  <div class="flex items-center justify-between mb-3">
+                    <span class="text-xs font-semibold
+                                 text-primary-700 truncate">
+                      {{ pub.club_nom }}
+                    </span>
+                    <span class="text-xs text-gray-400 shrink-0 ml-2">
+                      {{ formaterDate(pub.date_creation) }}
+                    </span>
+                  </div>
+
+                  <!-- Titre -->
+                  <h3 class="font-bold text-gray-900 text-base
+                             mb-2 line-clamp-2 leading-snug">
+                    {{ pub.titre }}
+                  </h3>
+
+                  <!-- Description -->
+                  <p class="text-sm text-gray-500 leading-relaxed
+                             flex-1 line-clamp-3">
+                    {{ tronquer(pub.description) }}
+                  </p>
+
+                  <!-- Dates événement -->
+                  @if (pub.est_evenement && pub.date_debut) {
+                    <div class="mt-3 space-y-1">
+                      <div class="flex items-center gap-2
+                                  text-xs text-gray-500">
+                        <svg class="w-3.5 h-3.5 text-primary-700
+                                    shrink-0" fill="none"
+                             stroke="currentColor" viewBox="0 0 24 24">
+                          <circle cx="12" cy="12" r="10"/>
+                          <path d="M12 6v6l4 2"/>
+                        </svg>
+                        {{ formaterDate(pub.date_debut) }}
+                        @if (pub.date_fin) {
+                          → {{ formaterDate(pub.date_fin) }}
+                        }
+                      </div>
+                    </div>
+                  }
+
+                  <!-- Lien lire la suite -->
+                  <a [routerLink]="['/publications', pub.id]"
+                      class="text-sm font-semibold text-primary-700
+                              hover:text-primary-800 flex items-center gap-1
+                              transition-colors duration-200 group">
+                      Lire la suite
+                      <svg class="w-4 h-4 transition-transform duration-200
+                                  group-hover:translate-x-1"
+                          fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                              stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/>
+                      </svg>
+                  </a>
+
+                </div>
+              </article>
+            }
+          </div>
+        }
+
+      </div>
+    </section>
+
+    <!-- ══════════════════════════════════════════
+         SECTION S'ABONNER
+         ══════════════════════════════════════════ -->
+    <section class="px-4 md:px-8 py-12 subscribe-anim">
+      <div class="max-w-5xl mx-auto">
+        <div class="bg-gradient-to-br from-primary-700
+                    to-primary-500 rounded-3xl p-8 md:p-10">
+          <div class="flex flex-col md:flex-row items-center
+                      justify-between gap-6">
+            <div class="text-white text-center md:text-left">
+              <h2 class="text-2xl font-black mb-2">
+                Ne manquez aucun événement
+              </h2>
+              <p class="text-sm text-purple-200 max-w-sm">
+                Inscrivez-vous pour recevoir les actualités de vos
+                clubs préférés directement par email.
+              </p>
+            </div>
+            <div class="flex gap-2 w-full md:w-auto shrink-0">
+              <input type="email"
+                     placeholder="votre.email&#64;etudiant-isj.cm"
+                     class="flex-1 md:w-64 px-4 py-3 rounded-xl
+                            text-sm text-gray-900
+                            placeholder-gray-400 border-none
+                            focus:outline-none focus:ring-2
+                            focus:ring-white/50"/>
+              <button class="bg-white hover:bg-gray-50 text-primary-700
+                             font-bold px-5 py-3 rounded-xl text-sm
+                             transition-colors duration-200
+                             shrink-0 whitespace-nowrap">
+                S'abonner
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ══════════════════════════════════════════
+       FOOTER COMPLET
+       ══════════════════════════════════════════ -->
+  <footer class="bg-white border-t border-gray-100 px-4 md:px-8
+                 pt-10 pb-6">
+    <div class="max-w-5xl mx-auto">
+
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-8 mb-8">
+
+        <!-- Logo -->
+        <div class="col-span-2 md:col-span-1">
+          <div class="flex items-center gap-2 mb-3">
+            <div class="w-7 h-7 bg-primary-700 rounded-lg
+                        flex items-center justify-center">
+              <svg class="w-4 h-4 text-white" fill="none"
+                   stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round"
+                      stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+              </svg>
+            </div>
+            <span class="font-bold text-gray-900">ClubISJ</span>
+          </div>
+          <p class="text-xs text-gray-500 leading-relaxed">
+            La plateforme officielle de gestion des clubs de l'ISJ.
+          </p>
+        </div>
+
+        <!-- Plateforme -->
+        <div>
+          <h4 class="text-xs font-bold text-gray-400 uppercase
+                     tracking-widest mb-3">
+            Plateforme
+          </h4>
+          <ul class="space-y-2">
+            <li>
+              <a routerLink="/"
+                 class="text-sm text-gray-600 hover:text-primary-700
+                        transition-colors">Accueil</a>
+            </li>
+            <li>
+              <a routerLink="/publications"
+                 class="text-sm text-gray-600 hover:text-primary-700
+                        transition-colors">Publications</a>
+            </li>
+            <li>
+              <a routerLink="/login"
+                 class="text-sm text-gray-600 hover:text-primary-700
+                        transition-colors">Connexion</a>
+            </li>
+          </ul>
+        </div>
+
+        <!-- Support -->
+        <div>
+          <h4 class="text-xs font-bold text-gray-400 uppercase
+                     tracking-widest mb-3">
+            Support
+          </h4>
+          <ul class="space-y-2">
+            <li>
+              <a href="#"
+                 class="text-sm text-gray-600 hover:text-primary-700
+                        transition-colors">Aide</a>
+            </li>
+            <li>
+              <a href="#"
+                 class="text-sm text-gray-600 hover:text-primary-700
+                        transition-colors flex items-center gap-1">
+                <svg class="w-3.5 h-3.5" fill="none"
+                     stroke="currentColor" viewBox="0 0 24 24">
+                  <circle cx="12" cy="12" r="10"/>
+                  <path d="M2 12h20"/>
+                </svg>
+                Français / English
+              </a>
+            </li>
+          </ul>
+        </div>
+
+        <!-- Contact -->
+        <div>
+          <h4 class="text-xs font-bold text-gray-400 uppercase
+                     tracking-widest mb-3">
+            Contact
+          </h4>
+          <p class="text-sm text-gray-600 leading-relaxed">
+            Institut Universitaire Saint Jean<br/>
+            Yaoundé, Cameroun
+          </p>
+        </div>
+
+      </div>
+
+      <!-- Copyright -->
+      <div class="border-t border-gray-100 pt-6 flex flex-col
+                  sm:flex-row items-center justify-between gap-2">
+        <p class="text-xs text-gray-400">
+          © {{ annee }} ClubISJ. Propulsé par l'ISJ.
+        </p>
+        <span class="text-xs text-gray-300 bg-gray-50
+                     px-2 py-1 rounded-full">
+          v1.0.0-stable
+        </span>
+      </div>
+
+    </div>
+  </footer>
+
+</div>

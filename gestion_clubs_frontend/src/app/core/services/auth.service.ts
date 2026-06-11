@@ -7,9 +7,8 @@
 import { Injectable, signal, computed } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
-import { tap } from 'rxjs/operators';
+import { tap, switchMap } from 'rxjs/operators';
 import { Observable } from 'rxjs';
-
 import { environment } from '../../../environments/environement';
 import {
   Utilisateur,
@@ -77,18 +76,32 @@ export class AuthService {
 
   // ── CONNEXION ─────────────────────────────────────────────────
   // POST /api/auth/login/
-  login(donnees: LoginRequest): Observable<any> {
+  // login(donnees: LoginRequest): Observable<any> {
+  //   return this.http.post<any>(
+  //     `${this.apiUrl}/login/`,
+  //     donnees
+  //   ).pipe(
+  //     tap(response => {
+  //       // simplejwt retourne access + refresh directement
+  //       // sans objet "utilisateur" → on appelle /me/ ensuite
+  //       this.sauvegarderTokens(response.access, response.refresh);
+  //       // Charge le profil utilisateur depuis /me/
+  //       this.chargerProfil().subscribe();
+  //     })
+  //   );
+  // }
+
+    login(donnees: LoginRequest): Observable<any> {
     return this.http.post<any>(
       `${this.apiUrl}/login/`,
       donnees
     ).pipe(
       tap(response => {
-        // simplejwt retourne access + refresh directement
-        // sans objet "utilisateur" → on appelle /me/ ensuite
         this.sauvegarderTokens(response.access, response.refresh);
-        // Charge le profil utilisateur depuis /me/
-        this.chargerProfil().subscribe();
-      })
+      }),
+      // Après login, charge le profil pour avoir
+      // les données fraîches (rôle, nom, etc.)
+      switchMap(() => this.chargerProfil())
     );
   }
 
@@ -173,4 +186,12 @@ export class AuthService {
     const data = localStorage.getItem('utilisateur');
     return data ? JSON.parse(data) : null;
   }
+
+  rafraichirProfil(): void {
+  this.chargerProfil().subscribe({
+    next: (utilisateur) => {
+      console.log('Profil rafraîchi :', utilisateur.role);
+    }
+  });
+}
 }

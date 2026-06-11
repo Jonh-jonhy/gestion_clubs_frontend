@@ -6,7 +6,8 @@
 // → admin : /admin
 // → membre/visiteur : /dashboard
 
-import { Component, signal } from '@angular/core';
+import { ToastService } from '../../../core/services/toast.service';
+import { Component, signal, inject } from '@angular/core';
 import { FormBuilder, FormGroup,
          Validators, ReactiveFormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
@@ -20,6 +21,8 @@ import { AuthService } from '../../../core/services/auth.service';
   styleUrl: './login.css'
 })
 export class Login {
+
+  private toastService = inject(ToastService);
 
   // Signal pour afficher/masquer le mot de passe
   motDePasseVisible = signal(false);
@@ -73,6 +76,7 @@ export class Login {
 
     this.authService.login(this.formulaire.value).subscribe({
       next: () => {
+        this.toastService.succes('Connexion réussie !');
         // Redirection selon le rôle après chargement du profil
         // On attend un tick pour que le signal utilisateur
         // soit mis à jour par chargerProfil()
@@ -86,6 +90,10 @@ export class Login {
         }, 500);
       },
       error: (err) => {
+        this.toastService.erreur(
+          'Connexion échouée',
+          err.error?.detail ?? 'Email ou mot de passe incorrect.'
+        );
         // Affiche le message d'erreur Django
         this.erreur.set(
           err.error?.detail ||

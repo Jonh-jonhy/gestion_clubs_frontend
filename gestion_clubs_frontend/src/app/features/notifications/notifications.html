@@ -1,1 +1,266 @@
-<p>notifications works!</p>
+<!-- src/app/features/notifications/notifications.html -->
+
+<div class="min-h-screen bg-gray-50">
+
+  <app-header-app />
+
+  <div class="flex">
+
+    <!-- ── Sidebar selon le rôle ─────────────────────────────── -->
+    @if (authService.estAdmin()) {
+      <app-sidebar-admin />
+    } @else {
+      <app-sidebar/>
+    }
+
+    <main class="flex-1 min-w-0 p-4 md:p-6 lg:p-8 page-fade-in">
+
+      <!-- EN-TÊTE -->
+      <div class="flex items-center justify-between mb-8 header-anim">
+        <div>
+          <h1 class="text-2xl md:text-3xl font-bold text-gray-900
+                     flex items-center gap-3">
+            Notifications
+            @if (nonLues() > 0) {
+              <span class="inline-flex items-center justify-center
+                           w-7 h-7 bg-primary-700 text-white
+                           text-xs font-bold rounded-full badge-pop">
+                {{ nonLues() }}
+              </span>
+            }
+          </h1>
+          <p class="text-sm text-gray-500 mt-1">
+            Restez informé des activités récentes au sein de vos
+            clubs et de l'institut.
+          </p>
+        </div>
+
+        @if (nonLues() > 0) {
+          <button (click)="marquerToutLu()"
+                  class="inline-flex items-center gap-2 text-sm
+                         font-medium text-gray-600 border border-gray-200
+                         px-4 py-2 rounded-xl hover:border-primary-700
+                         hover:text-primary-700 transition-all
+                         duration-200 shrink-0 btn-hover">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor"
+                 viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round"
+                    stroke-width="2" d="M5 13l4 4L19 7"/>
+            </svg>
+            Tout marquer comme lu
+          </button>
+        }
+      </div>
+
+      <!-- SKELETON -->
+      @if (chargement()) {
+        <div class="space-y-3">
+          @for (i of [1,2,3,4,5]; track i) {
+            <div class="bg-white rounded-2xl border border-gray-100
+                        p-5 flex items-start gap-4">
+              <div class="skeleton w-10 h-10 rounded-full shrink-0">
+              </div>
+              <div class="flex-1 space-y-2">
+                <div class="skeleton h-4 w-1/3 rounded"></div>
+                <div class="skeleton h-3 w-4/5 rounded"></div>
+              </div>
+              <div class="skeleton h-3 w-16 rounded shrink-0"></div>
+            </div>
+          }
+        </div>
+
+      <!-- ÉTAT VIDE -->
+      } @else if (notifications().length === 0) {
+        <div class="flex flex-col items-center justify-center
+                    py-20 text-center empty-anim">
+          <div class="w-16 h-16 bg-gray-100 rounded-full
+                      flex items-center justify-center mb-4">
+            <svg class="w-8 h-8 text-gray-300" fill="none"
+                 stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round"
+                    stroke-width="1.5"
+                    d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118
+                       14.158V11a6.002 6.002 0 00-4-5.659V5a2 2
+                       0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159
+                       c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3
+                       3 0 11-6 0v-1m6 0H9"/>
+            </svg>
+          </div>
+          <h3 class="text-lg font-bold text-gray-900 mb-2">
+            Aucune notification
+          </h3>
+          <p class="text-sm text-gray-500 max-w-xs">
+            Vous êtes à jour ! Les nouvelles notifications
+            apparaîtront ici.
+          </p>
+        </div>
+
+      <!-- LISTE -->
+      } @else {
+        <div class="max-w-3xl space-y-8">
+
+          @if (groupes().aujourdhui.length > 0) {
+            <div class="group-anim">
+              <h2 class="text-xs font-bold text-gray-400 uppercase
+                         tracking-widest mb-3 px-1">
+                Aujourd'hui
+              </h2>
+              <div class="space-y-2">
+                @for (notif of groupes().aujourdhui;
+                      track notif.id; let i = $index) {
+                  <ng-container
+                    *ngTemplateOutlet="notifItem;
+                    context: {notif: notif, index: i}"/>
+                }
+              </div>
+            </div>
+          }
+
+          @if (groupes().semaine.length > 0) {
+            <div class="group-anim" style="animation-delay: 0.1s">
+              <h2 class="text-xs font-bold text-gray-400 uppercase
+                         tracking-widest mb-3 px-1">
+                Cette semaine
+              </h2>
+              <div class="space-y-2">
+                @for (notif of groupes().semaine;
+                      track notif.id; let i = $index) {
+                  <ng-container
+                    *ngTemplateOutlet="notifItem;
+                    context: {notif: notif, index: i}"/>
+                }
+              </div>
+            </div>
+          }
+
+          @if (groupes().ancien.length > 0) {
+            <div class="group-anim" style="animation-delay: 0.2s">
+              <h2 class="text-xs font-bold text-gray-400 uppercase
+                         tracking-widest mb-3 px-1">
+                Plus ancien
+              </h2>
+              <div class="space-y-2">
+                @for (notif of groupes().ancien;
+                      track notif.id; let i = $index) {
+                  <ng-container
+                    *ngTemplateOutlet="notifItem;
+                    context: {notif: notif, index: i}"/>
+                }
+              </div>
+            </div>
+          }
+
+          <p class="text-xs text-gray-400 text-center italic py-4">
+            Les notifications de plus de 30 jours sont
+            automatiquement archivées.
+          </p>
+
+        </div>
+      }
+
+    </main>
+  </div>
+
+  <!-- TEMPLATE ITEM -->
+  <ng-template #notifItem let-notif="notif" let-index="index">
+    <div class="bg-white rounded-2xl border overflow-hidden
+                cursor-pointer transition-all duration-200
+                notif-item hover:shadow-sm"
+         [class.border-gray-100]="notif.est_lue"
+         [class.border-purple-100]="!notif.est_lue"
+         [style.animation-delay]="index * 0.05 + 's'"
+         (click)="marquerLue(notif)">
+
+      <div class="flex items-start gap-4 p-4 md:p-5">
+
+        <div class="w-10 h-10 rounded-full flex items-center
+                    justify-center shrink-0 mt-0.5"
+             [class]="getCouleur(notif.type_notification)">
+          @switch (getIcone(notif.type_notification)) {
+            @case ('check-circle') {
+              <svg class="w-5 h-5" fill="none"
+                   stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9
+                         0 0118 0z"/>
+              </svg>
+            }
+            @case ('x-circle') {
+              <svg class="w-5 h-5" fill="none"
+                   stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7
+                         -2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+              </svg>
+            }
+            @case ('pause-circle') {
+              <svg class="w-5 h-5" fill="none"
+                   stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M10 9v6m4-6v6m7-3a9 9 0 11-18 0 9 9
+                         0 0118 0z"/>
+              </svg>
+            }
+            @case ('send') {
+              <svg class="w-5 h-5" fill="none"
+                   stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/>
+              </svg>
+            }
+            @case ('user-plus') {
+              <svg class="w-5 h-5" fill="none"
+                   stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0
+                         11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"/>
+              </svg>
+            }
+            @default {
+              <svg class="w-5 h-5" fill="none"
+                   stroke="currentColor" viewBox="0 0 24 24">
+                <circle cx="12" cy="12" r="10"/>
+                <path d="M12 6v6l4 2"/>
+              </svg>
+            }
+          }
+        </div>
+
+        <div class="flex-1 min-w-0">
+          <p class="text-sm font-semibold mb-0.5"
+             [class]="getTitreCouleur(notif.type_notification)">
+            {{ notif.titre }}
+          </p>
+          <p class="text-sm text-gray-500 leading-relaxed">
+            {{ notif.message }}
+          </p>
+        </div>
+
+        <div class="flex flex-col items-end gap-2 shrink-0">
+          <span class="text-xs text-gray-400 whitespace-nowrap">
+            {{ dateRelative(notif.date_creation) }}
+          </span>
+          @if (!notif.est_lue) {
+            <span class="w-2.5 h-2.5 rounded-full bg-primary-700
+                         shrink-0 point-anim">
+            </span>
+          }
+        </div>
+
+      </div>
+    </div>
+  </ng-template>
+
+  <footer class="ml-0 md:ml-52 py-4 px-6 border-t border-gray-100">
+    <p class="text-xs text-gray-400 text-center">
+      © {{ annee }} ClubISJ - Institut Universitaire Saint Jean
+      de Yaoundé. Tous droits réservés.
+    </p>
+  </footer>
+
+</div>

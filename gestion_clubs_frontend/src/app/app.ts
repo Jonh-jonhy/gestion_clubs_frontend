@@ -5,10 +5,12 @@
 
 import { Component } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
+import { ToastComponent } from './shared/components/toast/toast';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet],  // ← nécessaire pour le routing
-  template: `<router-outlet />`,  // ← affiche le composant de la route active
+  imports: [RouterOutlet, ToastComponent],  // ← nécessaire pour le routing
+  template: `<router-outlet />
+              <app-toast />`,  // ← affiche le composant de la route active
 })
 export class App {}

@@ -1,0 +1,60 @@
+/* src/app/features/publications/detail/detail.css */
+
+.page-anim {
+  animation: pageFadeIn 0.4s ease-out forwards;
+}
+
+.content-anim {
+  animation: contentFadeUp 0.45s ease-out forwards;
+}
+
+.image-reveal {
+  animation: imageReveal 0.5s ease-out 0.2s both;
+}
+
+.description-anim {
+  animation: descFadeIn 0.5s ease-out 0.3s both;
+}
+
+.event-card {
+  animation: eventPop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1)
+             0.2s both;
+}
+
+.skeleton {
+  background: linear-gradient(
+    90deg, #f3f4f6 25%, #e5e7eb 50%, #f3f4f6 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+@keyframes pageFadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0);   }
+}
+
+@keyframes contentFadeUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0);    }
+}
+
+@keyframes imageReveal {
+  from { opacity: 0; transform: scale(0.98); }
+  to   { opacity: 1; transform: scale(1);    }
+}
+
+@keyframes descFadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes eventPop {
+  from { opacity: 0; transform: scale(0.97); }
+  to   { opacity: 1; transform: scale(1);    }
+}
+
+@keyframes shimmer {
+  0%   { background-position: 200% 0;  }
+  100% { background-position: -200% 0; }
+}

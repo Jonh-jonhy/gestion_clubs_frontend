@@ -1,43 +1,62 @@
 <!-- src/app/shared/components/header-public/header-public.html -->
 
-<header class="w-full bg-white border-b border-gray-100 px-4 md:px-8 py-4">
+<header class="fixed top-0 left-0 right-0 z-50
+               bg-white/95 backdrop-blur-sm
+               border-b border-gray-100
+               px-4 md:px-8 py-4
+               header-slide-down">
+
   <div class="max-w-6xl mx-auto flex items-center justify-between">
 
     <!-- Logo -->
-    <a routerLink="/" class="flex items-center gap-2">
+    <a routerLink="/"
+       class="flex items-center gap-2 logo-hover">
       <div class="w-8 h-8 bg-primary-700 rounded-lg
-                  flex items-center justify-center shrink-0">
+                  flex items-center justify-center shrink-0
+                  logo-icon-anim">
         <svg class="w-5 h-5 text-white" fill="none"
              stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round"
-                stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+                stroke-width="2"
+                d="M13 10V3L4 14h7v7l9-11h-7z"/>
         </svg>
       </div>
-      <span class="text-lg font-bold text-gray-900">ClubISJ</span>
+      <span class="text-base font-bold text-gray-900
+                   hidden sm:block">
+        ClubISJ
+      </span>
     </a>
 
     <!-- Navigation desktop -->
     <nav class="hidden md:flex items-center gap-6">
+
       <a href="#"
-         class="text-sm text-gray-600 hover:text-gray-900
-                transition-colors duration-200">
+         class="text-sm text-gray-600 hover:text-primary-700
+                transition-colors duration-200 nav-link-underline
+                pb-0.5">
         À propos
       </a>
-      <a href="#"
-         class="text-sm text-gray-600 hover:text-gray-900
-                transition-colors duration-200">
-        Aide
+
+      <!-- Publications → remplace "Aide" -->
+      <a routerLink="/publications"
+         routerLinkActive="text-primary-700 font-semibold"
+         class="text-sm text-gray-600 hover:text-primary-700
+                transition-colors duration-200 nav-link-underline
+                pb-0.5">
+        Publications
       </a>
 
       <!-- Sélecteur langue -->
       <div class="flex items-center gap-1 border border-gray-200
-                  rounded-full px-3 py-1.5">
-        <button class="text-sm font-semibold text-primary-700">
+                  rounded-full px-3 py-1.5 hover:border-primary-700
+                  transition-colors duration-200">
+        <button class="text-sm font-semibold text-primary-700
+                       hover:scale-105 transition-transform duration-200">
           FR
         </button>
         <span class="text-gray-300 text-xs">|</span>
-        <button class="text-sm text-gray-400
-                       hover:text-gray-600 transition-colors">
+        <button class="text-sm text-gray-400 hover:text-gray-600
+                       hover:scale-105 transition-all duration-200">
           EN
         </button>
       </div>
@@ -46,62 +65,126 @@
       <a routerLink="/login"
          class="bg-primary-700 hover:bg-primary-800 text-white
                 text-sm font-semibold px-5 py-2 rounded-lg
-                transition-colors duration-200">
+                transition-all duration-200 hover:scale-105
+                hover:shadow-lg hover:shadow-primary-700/25
+                active:scale-95">
         Se connecter
       </a>
+
     </nav>
 
-    <!-- Menu hamburger mobile -->
+    <!-- Hamburger mobile -->
     <button class="md:hidden flex items-center justify-center
                    w-9 h-9 rounded-lg border border-gray-200
-                   text-gray-600 hover:bg-gray-50 transition-colors"
+                   text-gray-600 hover:bg-gray-50
+                   hover:border-primary-700 hover:text-primary-700
+                   transition-all duration-200 active:scale-95"
             (click)="toggleMenu()">
-      @if (!menuOuvert) {
-        <svg class="w-5 h-5" fill="none" stroke="currentColor"
-             viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round"
-                stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
-        </svg>
-      } @else {
-        <svg class="w-5 h-5" fill="none" stroke="currentColor"
-             viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round"
-                stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-        </svg>
-      }
+      <div class="relative w-5 h-5">
+        <span class="absolute block w-5 h-0.5 bg-current
+                     transition-all duration-300 ease-in-out"
+              [class.rotate-45]="menuOuvert()"
+              [class.top-1]="!menuOuvert()"
+              [class.top-2]="menuOuvert()">
+        </span>
+        <span class="absolute block w-5 h-0.5 bg-current top-2.5
+                     transition-all duration-200 ease-in-out"
+              [class.opacity-0]="menuOuvert()"
+              [class.scale-x-0]="menuOuvert()">
+        </span>
+        <span class="absolute block w-5 h-0.5 bg-current
+                     transition-all duration-300 ease-in-out"
+              [class.-rotate-45]="menuOuvert()"
+              [class.top-4]="!menuOuvert()"
+              [class.top-2]="menuOuvert()">
+        </span>
+      </div>
     </button>
 
   </div>
 
-  <!-- Menu mobile déroulant -->
-  @if (menuOuvert) {
-    <div class="md:hidden border-t border-gray-100 mt-4 pt-4
-                px-4 pb-4 space-y-3">
+  <!-- Menu mobile -->
+  <div class="md:hidden absolute top-full left-0 right-0
+              bg-white/95 backdrop-blur-sm
+              border-b border-gray-100 shadow-lg
+              overflow-hidden transition-all duration-300 ease-in-out"
+       [class.max-h-0]="!menuOuvert()"
+       [class.max-h-96]="menuOuvert()"
+       [class.opacity-0]="!menuOuvert()"
+       [class.opacity-100]="menuOuvert()">
+
+    <div class="px-4 py-4 space-y-1">
+
       <a href="#"
-         class="block text-sm text-gray-600 hover:text-gray-900
-                py-2 transition-colors">
+         class="flex items-center gap-2 text-sm text-gray-600
+                hover:text-primary-700 hover:bg-purple-50
+                px-3 py-2.5 rounded-lg transition-all duration-200"
+         (click)="toggleMenu()">
         À propos
       </a>
-      <a href="#"
-         class="block text-sm text-gray-600 hover:text-gray-900
-                py-2 transition-colors">
-        Aide
+
+      <!-- Publications dans le menu mobile -->
+      <a routerLink="/publications"
+         routerLinkActive="text-primary-700 bg-purple-50 font-semibold"
+         class="flex items-center gap-2 text-sm text-gray-600
+                hover:text-primary-700 hover:bg-purple-50
+                px-3 py-2.5 rounded-lg transition-all duration-200"
+         (click)="toggleMenu()">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor"
+             viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round"
+                stroke-width="2"
+                d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0
+                   012-2h5.586a1 1 0 01.707.293l5.414 5.414a1
+                   1 0 01.293.707V19a2 2 0 01-2 2z"/>
+        </svg>
+        Publications
       </a>
-      <div class="flex items-center gap-2 py-2">
-        <button class="text-sm font-semibold text-primary-700">
-          FR
-        </button>
-        <span class="text-gray-300">|</span>
-        <button class="text-sm text-gray-400">EN</button>
+
+      <!-- Séparateur -->
+      <div class="border-t border-gray-100 my-2"></div>
+
+      <!-- Langue -->
+      <div class="flex items-center gap-3 px-3 py-2">
+        <span class="text-xs text-gray-400 uppercase
+                     tracking-wider font-medium">
+          Langue
+        </span>
+        <div class="flex items-center gap-1 border border-gray-200
+                    rounded-full px-3 py-1">
+          <button class="text-sm font-semibold text-primary-700">
+            FR
+          </button>
+          <span class="text-gray-300 text-xs">|</span>
+          <button class="text-sm text-gray-400">EN</button>
+        </div>
       </div>
-      <a routerLink="/login"
-         class="block w-full text-center bg-primary-700
-                hover:bg-primary-800 text-white text-sm
-                font-semibold px-5 py-2.5 rounded-lg
-                transition-colors duration-200">
-        Se connecter
-      </a>
+
+      <!-- Bouton Se connecter -->
+      <div class="pt-2 pb-1">
+        <a routerLink="/login"
+           class="flex items-center justify-center gap-2
+                  w-full bg-primary-700 hover:bg-primary-800
+                  text-white text-sm font-semibold
+                  px-5 py-3 rounded-xl
+                  transition-all duration-200 active:scale-95"
+           (click)="toggleMenu()">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor"
+               viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3
+                     0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3
+                     3 0 013 3v1"/>
+          </svg>
+          Se connecter
+        </a>
+      </div>
+
     </div>
-  }
+  </div>
 
 </header>
+
+<!-- Spacer -->
+<div class="h-16"></div>

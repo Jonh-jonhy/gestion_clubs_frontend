@@ -1,1 +1,256 @@
-<p>liste works!</p>
+<!-- src/app/features/clubs/liste/liste.html -->
+
+<div class="min-h-screen bg-gray-50">
+
+  <app-header-app />
+
+  <div class="flex">
+    <app-sidebar />
+
+    <main class="flex-1 min-w-0 p-4 md:p-6 lg:p-8 page-fade-in">
+
+      <!-- EN-TÊTE -->
+      <div class="flex flex-col sm:flex-row sm:items-center
+                  sm:justify-between gap-4 mb-8 header-anim">
+        <div>
+          <h1 class="text-2xl md:text-3xl font-bold text-gray-900">
+            Tous les Clubs
+          </h1>
+          <p class="text-sm text-gray-500 mt-1">
+            Découvrez les clubs actifs de l'Institut Saint Jean.
+          </p>
+        </div>
+
+        <a routerLink="/clubs/creer"
+           class="inline-flex items-center gap-2 bg-primary-700
+                  hover:bg-primary-800 text-white text-sm font-semibold
+                  px-4 py-2.5 rounded-xl transition-all duration-200
+                  shadow-sm btn-hover shrink-0">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor"
+               viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round"
+                  stroke-width="2" d="M12 4v16m8-8H4"/>
+          </svg>
+          Créer un club
+        </a>
+      </div>
+
+      <!-- FILTRES -->
+      <div class="flex flex-col sm:flex-row gap-3 mb-6 filter-anim">
+
+        <!-- Recherche -->
+        <div class="relative flex-1">
+          <div class="absolute inset-y-0 left-0 pl-3
+                      flex items-center pointer-events-none">
+            <svg class="w-4 h-4 text-gray-400" fill="none"
+                 stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0"/>
+            </svg>
+          </div>
+          <input type="text"
+                 [value]="recherche()"
+                 (input)="recherche.set($any($event.target).value)"
+                 placeholder="Rechercher un club..."
+                 class="w-full pl-10 pr-4 py-2.5 border border-gray-200
+                        rounded-xl text-sm placeholder-gray-400
+                        focus:outline-none focus:ring-2
+                        focus:ring-primary-700 bg-white
+                        transition-all duration-200"/>
+        </div>
+
+        <!-- Filtre filière -->
+        <div class="relative w-full sm:w-56 shrink-0">
+          <select [value]="filiere()"
+                  (change)="filiere.set($any($event.target).value)"
+                  class="w-full px-4 py-2.5 border border-gray-200
+                         rounded-xl text-sm text-gray-900
+                         focus:outline-none focus:ring-2
+                         focus:ring-primary-700 appearance-none
+                         bg-white cursor-pointer
+                         transition-all duration-200">
+            @for (f of filieres; track f.valeur) {
+              <option [value]="f.valeur">{{ f.label }}</option>
+            }
+          </select>
+          <div class="absolute inset-y-0 right-0 pr-3
+                      flex items-center pointer-events-none">
+            <svg class="w-4 h-4 text-gray-400" fill="none"
+                 stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round"
+                    stroke-width="2" d="M19 9l-7 7-7-7"/>
+            </svg>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Compteur -->
+      @if (!chargement()) {
+        <p class="text-sm text-gray-500 mb-4">
+          <span class="font-semibold text-gray-900">
+            {{ clubsFiltres().length }}
+          </span>
+          club{{ clubsFiltres().length > 1 ? 's' : '' }} trouvé{{
+            clubsFiltres().length > 1 ? 's' : '' }}
+        </p>
+      }
+
+      <!-- GRILLE -->
+      @if (chargement()) {
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3
+                    gap-5">
+          @for (i of [1,2,3,4,5,6]; track i) {
+            <div class="bg-white rounded-2xl border border-gray-100
+                        p-5 space-y-3">
+              <div class="flex items-center gap-3">
+                <div class="skeleton w-12 h-12 rounded-full"></div>
+                <div class="flex-1 space-y-2">
+                  <div class="skeleton h-4 w-2/3 rounded"></div>
+                  <div class="skeleton h-3 w-1/3 rounded"></div>
+                </div>
+              </div>
+              <div class="skeleton h-3 w-full rounded"></div>
+              <div class="skeleton h-3 w-4/5 rounded"></div>
+            </div>
+          }
+        </div>
+
+      } @else if (clubsFiltres().length === 0) {
+        <div class="flex flex-col items-center justify-center
+                    py-20 text-center empty-anim">
+          <div class="w-16 h-16 bg-gray-100 rounded-full
+                      flex items-center justify-center mb-4">
+            <svg class="w-8 h-8 text-gray-300" fill="none"
+                 stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round"
+                    stroke-width="1.5"
+                    d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16
+                       m14 0h2m-2 0h-5m-9 0H3m2 0h5"/>
+            </svg>
+          </div>
+          <h3 class="text-lg font-bold text-gray-900 mb-2">
+            Aucun club trouvé
+          </h3>
+          <p class="text-sm text-gray-500 mb-4 max-w-xs">
+            @if (recherche()) {
+              Aucun résultat pour "{{ recherche() }}".
+            } @else {
+              Aucun club disponible pour cette filière.
+            }
+          </p>
+          @if (recherche() || filiere() !== 'tous') {
+            <button (click)="recherche.set(''); filiere.set('tous')"
+                    class="text-sm text-primary-700 font-medium
+                           hover:text-primary-800 transition-colors">
+              Réinitialiser les filtres
+            </button>
+          }
+        </div>
+
+      } @else {
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3
+                    gap-5">
+          @for (club of clubsFiltres(); track club.id;
+                let i = $index) {
+            <div class="bg-white rounded-2xl border border-gray-100
+                        overflow-hidden hover:border-primary-200
+                        hover:shadow-md transition-all duration-300
+                        flex flex-col club-card"
+                 [style.animation-delay]="i * 0.06 + 's'">
+
+              <!-- Header card -->
+              <div class="p-5 pb-4">
+
+                <div class="flex items-start justify-between mb-4">
+                  <!-- Logo -->
+                  <div class="w-14 h-14 rounded-full bg-purple-50
+                              border-2 border-purple-100
+                              flex items-center justify-center
+                              overflow-hidden shrink-0 logo-anim">
+                    @if (club.logo) {
+                      <img [src]="club.logo" [alt]="club.nom"
+                           class="w-full h-full object-cover"/>
+                    } @else {
+                      <span class="text-xl font-black text-primary-700">
+                        {{ club.nom[0] }}
+                      </span>
+                    }
+                  </div>
+                  <!-- Badge filière -->
+                  <span class="text-xs font-medium text-primary-700
+                               bg-purple-50 px-2.5 py-1 rounded-full">
+                    {{ club.filiere_display }}
+                  </span>
+                </div>
+
+                <!-- Nom + mission -->
+                <h3 class="font-bold text-gray-900 mb-2 line-clamp-1">
+                  {{ club.nom }}
+                </h3>
+                <p class="text-xs text-gray-500 leading-relaxed
+                           line-clamp-2 mb-4">
+                  {{ club.mission }}
+                </p>
+
+                <!-- Stats -->
+                <div class="flex items-center gap-1 text-xs
+                            text-gray-400">
+                  <svg class="w-3.5 h-3.5" fill="none"
+                       stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round"
+                          stroke-width="2"
+                          d="M17 20h5v-2a3 3 0 00-5.356-1.857M17
+                             20H7m10 0v-2c0-.656-.126-1.283-.356
+                             -1.857M7 20H2v-2a3 3 0 015.356-1.857M7
+                             20v-2c0-.656.126-1.283.356-1.857m0 0a5.002
+                             5.002 0 019.288 0M15 7a3 3 0 11-6 0 3
+                             3 0 016 0z"/>
+                  </svg>
+                  <span class="font-semibold text-gray-700">
+                    {{ club.nombre_membres }}
+                  </span>
+                  membre{{ club.nombre_membres > 1 ? 's' : '' }} actif{{
+                    club.nombre_membres > 1 ? 's' : '' }}
+                </div>
+
+              </div>
+
+              <!-- Footer card -->
+              <div class="px-5 pb-5 pt-3 border-t border-gray-50
+                          mt-auto">
+                <a [routerLink]="['/clubs', club.id]"
+                   class="w-full flex items-center justify-center
+                          gap-2 text-sm font-semibold text-primary-700
+                          border border-primary-200 py-2.5 rounded-xl
+                          hover:bg-primary-700 hover:text-white
+                          hover:border-primary-700 transition-all
+                          duration-200 btn-ouvrir">
+                  Ouvrir
+                  <svg class="w-4 h-4 transition-transform duration-200
+                               group-hover:translate-x-1"
+                       fill="none" stroke="currentColor"
+                       viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round"
+                          stroke-width="2" d="M9 5l7 7-7 7"/>
+                  </svg>
+                </a>
+              </div>
+
+            </div>
+          }
+        </div>
+      }
+
+    </main>
+  </div>
+
+  <footer class="ml-0 md:ml-52 py-4 px-6 border-t border-gray-100">
+    <p class="text-xs text-gray-400 text-center">
+      © {{ annee }} ClubISJ - Institut Universitaire Saint Jean
+      de Yaoundé. Tous droits réservés.
+    </p>
+  </footer>
+
+</div>

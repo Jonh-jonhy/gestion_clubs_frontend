@@ -28,5 +28,5 @@
 }
 
 .badge-dot{
-    animation: pulse-ring 1s ease-in-out infinite;
+    animation: pulse-ring 2s ease-in-out infinite;
 }

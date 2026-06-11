@@ -1,0 +1,49 @@
+/* Animations uniquement */
+
+.header-slide-down {
+  animation: headerSlideDown 0.4s ease-out forwards;
+}
+
+.logo-hover {
+  transition: opacity 0.2s ease;
+}
+.logo-hover:hover { opacity: 0.85; }
+
+.logo-icon-anim {
+  transition: transform 0.3s ease;
+}
+.logo-hover:hover .logo-icon-anim {
+  transform: rotate(8deg) scale(1.05);
+}
+
+.user-fade-in {
+  animation: fadeInRight 0.5s ease-out forwards;
+}
+
+.avatar-hover {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  box-shadow: 0 2px 8px rgba(124, 58, 237, 0.25);
+}
+.avatar-hover:hover {
+  transform: scale(1.1);
+  box-shadow: 0 4px 14px rgba(124, 58, 237, 0.4);
+}
+
+@keyframes headerSlideDown {
+  from { opacity: 0; transform: translateY(-100%); }
+  to   { opacity: 1; transform: translateY(0);     }
+}
+
+@keyframes fadeInRight {
+  from { opacity: 0; transform: translateX(16px); }
+  to   { opacity: 1; transform: translateX(0);    }
+}
+
+.overlay-anim {
+  animation: overlayFadeIn 0.2s ease-out forwards;
+}
+
+@keyframes overlayFadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}

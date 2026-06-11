@@ -1,0 +1,244 @@
+<!-- src/app/features/publications/detail/detail.html -->
+
+<div class="min-h-screen bg-gray-50">
+
+  <!-- Header selon connexion -->
+  @if (authService.estConnecte()) {
+    <app-header-app />
+    <div class="flex">
+      <app-sidebar />
+      <main class="flex-1 min-w-0">
+        <ng-container
+          *ngTemplateOutlet="contenu"/>
+      </main>
+    </div>
+  } @else {
+    <app-header-public />
+    <main>
+      <ng-container *ngTemplateOutlet="contenu"/>
+    </main>
+  }
+
+  <!-- Footer -->
+  <footer class="py-4 px-6 border-t border-gray-100"
+          [class.ml-52]="authService.estConnecte()">
+    <p class="text-xs text-gray-400 text-center">
+      © {{ annee }} ClubISJ - Institut Universitaire Saint Jean
+      de Yaoundé. Tous droits réservés.
+    </p>
+  </footer>
+
+</div>
+
+<!-- ══════════════════════════════════════════
+     TEMPLATE CONTENU
+     ══════════════════════════════════════════ -->
+<ng-template #contenu>
+  <div class="max-w-3xl mx-auto px-4 md:px-6 py-8 page-anim">
+
+    <!-- Retour -->
+    <a routerLink="/publications"
+       class="inline-flex items-center gap-1.5 text-sm
+              text-gray-500 hover:text-primary-700
+              transition-colors duration-200 mb-6">
+      <svg class="w-4 h-4" fill="none" stroke="currentColor"
+           viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round"
+              stroke-width="2" d="M15 19l-7-7 7-7"/>
+      </svg>
+      Retour aux publications
+    </a>
+
+    <!-- ── Skeleton ────────────────────────────────── -->
+    @if (chargement()) {
+      <div class="space-y-4">
+        <div class="skeleton h-8 w-3/4 rounded-xl"></div>
+        <div class="skeleton h-4 w-1/4 rounded-xl"></div>
+        <div class="skeleton h-64 w-full rounded-2xl"></div>
+        <div class="space-y-2">
+          <div class="skeleton h-3 w-full rounded"></div>
+          <div class="skeleton h-3 w-5/6 rounded"></div>
+          <div class="skeleton h-3 w-4/5 rounded"></div>
+        </div>
+      </div>
+
+    <!-- ── Erreur ──────────────────────────────────── -->
+    } @else if (erreur()) {
+      <div class="text-center py-20">
+        <div class="w-16 h-16 bg-red-50 rounded-full
+                    flex items-center justify-center mx-auto mb-4">
+          <svg class="w-8 h-8 text-red-400" fill="none"
+               stroke="currentColor" viewBox="0 0 24 24">
+            <circle cx="12" cy="12" r="10"/>
+            <path d="M12 8v4m0 4h.01"/>
+          </svg>
+        </div>
+        <h2 class="text-lg font-bold text-gray-900 mb-2">
+          Publication introuvable
+        </h2>
+        <p class="text-sm text-gray-500 mb-4">
+          Cette publication n'existe pas ou a été supprimée.
+        </p>
+        <a routerLink="/publications"
+           class="text-sm text-primary-700 font-medium
+                  hover:text-primary-800 transition-colors">
+          Voir toutes les publications →
+        </a>
+      </div>
+
+    <!-- ── Contenu ─────────────────────────────────── -->
+    } @else if (publication()) {
+      <article class="content-anim">
+
+        <!-- Badge événement -->
+        @if (publication()!.est_evenement) {
+          <span class="inline-flex items-center gap-1.5
+                       bg-primary-700 text-white text-xs
+                       font-semibold px-3 py-1.5 rounded-full
+                       mb-4">
+            <svg class="w-3.5 h-3.5" fill="none"
+                 stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0
+                       002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2
+                       2 0 002 2z"/>
+            </svg>
+            Événement
+          </span>
+        }
+
+        <!-- Titre -->
+        <h1 class="text-2xl md:text-4xl font-black text-gray-900
+                   leading-tight mb-4">
+          {{ publication()!.titre }}
+        </h1>
+
+        <!-- Meta infos -->
+        <div class="flex flex-wrap items-center gap-4 mb-6
+                    pb-6 border-b border-gray-100">
+
+          <!-- Club -->
+          <div class="flex items-center gap-2">
+            <div class="w-8 h-8 rounded-full bg-purple-100
+                        flex items-center justify-center">
+              <span class="text-xs font-bold text-primary-700">
+                {{ publication()!.club_nom[0] }}
+              </span>
+            </div>
+            <span class="text-sm font-semibold text-primary-700">
+              {{ publication()!.club_nom }}
+            </span>
+          </div>
+
+          <!-- Auteur -->
+          <span class="text-sm text-gray-500">
+            Par {{ publication()!.auteur.prenom }}
+            {{ publication()!.auteur.nom }}
+          </span>
+
+          <!-- Date -->
+          <span class="text-sm text-gray-400 flex items-center gap-1">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor"
+                 viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7
+                       a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+            </svg>
+            {{ formaterDate(publication()!.date_creation) }}
+          </span>
+
+        </div>
+
+        <!-- Dates événement -->
+        @if (publication()!.est_evenement) {
+          <div class="bg-purple-50 border border-purple-100
+                      rounded-2xl p-5 mb-6 event-card">
+            <p class="text-sm font-bold text-primary-700 mb-3
+                      flex items-center gap-2">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor"
+                   viewBox="0 0 24 24">
+                <circle cx="12" cy="12" r="10"/>
+                <path d="M12 6v6l4 2"/>
+              </svg>
+              Informations sur l'événement
+            </p>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <p class="text-xs text-gray-400 mb-1">
+                  Début
+                </p>
+                <p class="text-sm font-semibold text-gray-900">
+                  {{ formaterDate(publication()!.date_debut!) }}
+                </p>
+              </div>
+              @if (publication()!.date_fin) {
+                <div>
+                  <p class="text-xs text-gray-400 mb-1">Fin</p>
+                  <p class="text-sm font-semibold text-gray-900">
+                    {{ formaterDate(publication()!.date_fin!) }}
+                  </p>
+                </div>
+              }
+            </div>
+          </div>
+        }
+
+        <!-- Image -->
+        @if (publication()!.image) {
+          <div class="rounded-2xl overflow-hidden mb-8
+                      image-reveal">
+            <img [src]="publication()!.image!"
+                 [alt]="publication()!.titre"
+                 class="w-full h-64 md:h-96 object-cover"/>
+          </div>
+        }
+
+        <!-- Description -->
+        <div class="prose prose-sm max-w-none text-gray-700
+                    leading-relaxed space-y-4 description-anim">
+          @for (paragraphe of publication()!.description.split('\n');
+                track $index) {
+            @if (paragraphe.trim()) {
+              <p>{{ paragraphe }}</p>
+            }
+          }
+        </div>
+
+        <!-- Footer article -->
+        <div class="mt-10 pt-6 border-t border-gray-100
+                    flex flex-col sm:flex-row items-center
+                    justify-between gap-4">
+
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-full bg-purple-100
+                        flex items-center justify-center">
+              <span class="text-sm font-bold text-primary-700">
+                {{ publication()!.club_nom[0] }}
+              </span>
+            </div>
+            <div>
+              <p class="text-sm font-semibold text-gray-900">
+                {{ publication()!.club_nom }}
+              </p>
+              <p class="text-xs text-gray-400">
+                Publié le {{ formaterDate(publication()!.date_creation) }}
+              </p>
+            </div>
+          </div>
+
+          <a routerLink="/publications"
+             class="text-sm font-medium text-primary-700
+                    hover:text-primary-800 flex items-center gap-1
+                    transition-colors">
+            Voir toutes les publications →
+          </a>
+
+        </div>
+
+      </article>
+    }
+
+  </div>
+</ng-template>

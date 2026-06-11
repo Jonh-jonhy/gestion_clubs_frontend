@@ -5,7 +5,8 @@
 // Utilise ReactiveForms avec validation croisée
 // pour vérifier que les deux mots de passe correspondent.
 
-import { Component, signal } from '@angular/core';
+import { ToastService } from '../../../core/services/toast.service';
+import { Component, signal, inject } from '@angular/core';
 import { FormBuilder, FormGroup,
          Validators, ReactiveFormsModule,
          AbstractControl, ValidationErrors } from '@angular/forms';
@@ -34,6 +35,7 @@ function motsDePasseIdentiques(
 })
 export class Register {
 
+  private toastService = inject(ToastService)
   // Visibilité des mots de passe (deux champs séparés)
   mdpVisible     = signal(false);
   mdpConfVisible = signal(false);
@@ -96,6 +98,10 @@ export class Register {
 
     this.authService.register(this.formulaire.value).subscribe({
       next: () => {
+        this.toastService.succes(
+          'Compte créé !',
+          'Bienvenue sur ClubISJ.'
+        );
         // Après inscription → redirige vers le dashboard
         // Le rôle est VISITEUR par défaut
         this.router.navigate(['/dashboard']);

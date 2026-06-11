@@ -1,1 +1,575 @@
-<p>creer works!</p>
+<!-- src/app/features/clubs/creer/creer.html -->
+
+<div class="min-h-screen bg-gray-50">
+
+  <app-header-app />
+
+  <div class="flex">
+    <app-sidebar />
+
+    <main class="flex-1 min-w-0 p-4 md:p-6 lg:p-8 page-fade-in">
+
+      <!-- Titre page -->
+      <div class="mb-8">
+        <h1 class="text-2xl md:text-3xl font-bold text-gray-900">
+          Créer un nouveau club
+        </h1>
+        <p class="text-sm text-gray-500 mt-1">
+          Donnez vie à vos idées et rassemblez les étudiants
+          autour d'une passion commune.
+        </p>
+      </div>
+
+      <!-- Card principale -->
+      <div class="max-w-2xl mx-auto">
+
+        <!-- ══════════════════════════════════════════
+             STEPPER
+             ══════════════════════════════════════════ -->
+        <div class="flex items-center justify-center mb-10">
+
+          @for (etape of [1, 2, 3]; track etape; let last = $last) {
+
+            <!-- Cercle étape -->
+            <div class="flex flex-col items-center stepper-item"
+                 [style.animation-delay]="(etape - 1) * 0.1 + 's'">
+
+              <div class="w-10 h-10 rounded-full flex items-center
+                          justify-center font-bold text-sm
+                          transition-all duration-300"
+                   [class.bg-primary-700]="etapeCourante() >= etape"
+                   [class.text-white]="etapeCourante() >= etape"
+                   [class.bg-gray-100]="etapeCourante() < etape"
+                   [class.text-gray-400]="etapeCourante() < etape"
+                   [class.step-active]="etapeCourante() === etape"
+                   [class.step-done]="etapeCourante() > etape">
+
+                @if (etapeCourante() > etape) {
+                  <!-- Coche si étape complétée -->
+                  <svg class="w-5 h-5" fill="none"
+                       stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round"
+                          stroke-linejoin="round" stroke-width="2.5"
+                          d="M5 13l4 4L19 7"/>
+                  </svg>
+                } @else {
+                  <!-- Icône par étape -->
+                  @if (etape === 1) {
+                    <svg class="w-5 h-5" fill="none"
+                         stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round"
+                            stroke-linejoin="round" stroke-width="2"
+                            d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5
+                               a2 2 0 012-2h5.586a1 1 0 01.707.293
+                               l5.414 5.414a1 1 0 01.293.707V19a2
+                               2 0 01-2 2z"/>
+                    </svg>
+                  } @else if (etape === 2) {
+                    <svg class="w-5 h-5" fill="none"
+                         stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round"
+                            stroke-linejoin="round" stroke-width="2"
+                            d="M4 16l4.586-4.586a2 2 0 012.828 0
+                               L16 16m-2-2l1.586-1.586a2 2 0 012.828
+                               0L20 14m-6-6h.01M6 20h12a2 2 0 002-2
+                               V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2
+                               2 0 002 2z"/>
+                    </svg>
+                  } @else {
+                    <svg class="w-5 h-5" fill="none"
+                         stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round"
+                            stroke-linejoin="round" stroke-width="2"
+                            d="M5 13l4 4L19 7"/>
+                    </svg>
+                  }
+                }
+              </div>
+
+              <!-- Label étape -->
+              <span class="text-xs mt-2 font-medium transition-colors
+                           duration-300"
+                    [class.text-primary-700]="etapeCourante() >= etape"
+                    [class.text-gray-400]="etapeCourante() < etape">
+                @if (etape === 1) { Informations }
+                @else if (etape === 2) { Personnalisation }
+                @else { Confirmation }
+              </span>
+
+            </div>
+
+            <!-- Ligne entre étapes -->
+            @if (!last) {
+              <div class="flex-1 h-0.5 mx-3 mb-5 rounded-full
+                          transition-all duration-500"
+                   [class.bg-primary-700]="etapeCourante() > etape"
+                   [class.bg-gray-200]="etapeCourante() <= etape">
+              </div>
+            }
+
+          }
+        </div>
+
+        <!-- ══════════════════════════════════════════
+             MESSAGE SUCCÈS
+             ══════════════════════════════════════════ -->
+        @if (succes()) {
+          <div class="bg-white rounded-2xl border border-gray-100
+                      p-10 text-center success-anim">
+            <div class="w-16 h-16 bg-green-100 rounded-full
+                        flex items-center justify-center mx-auto mb-4">
+              <svg class="w-8 h-8 text-green-600" fill="none"
+                   stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round"
+                      stroke-width="2" d="M5 13l4 4L19 7"/>
+              </svg>
+            </div>
+            <h2 class="text-xl font-bold text-gray-900 mb-2">
+              Demande envoyée !
+            </h2>
+            <p class="text-sm text-gray-500 max-w-sm mx-auto">
+              Votre demande de création du club
+              <strong>"{{ formEtape1.value.nom }}"</strong>
+              a été soumise. Vous recevrez une notification
+              dès que l'administrateur aura traité votre demande.
+            </p>
+            <p class="text-xs text-gray-400 mt-4">
+              Redirection vers le dashboard...
+            </p>
+          </div>
+
+        } @else {
+
+          <!-- ══════════════════════════════════════════
+               ÉTAPE 1 — Informations
+               ══════════════════════════════════════════ -->
+          @if (etapeCourante() === 1) {
+            <div class="bg-white rounded-2xl border border-gray-100
+                        p-6 md:p-8 step-anim">
+
+              <div class="mb-6">
+                <h2 class="text-lg font-bold text-gray-900">
+                  Informations de base
+                </h2>
+                <p class="text-sm text-gray-500 mt-1">
+                  Dites-nous en plus sur l'objectif de votre club.
+                </p>
+              </div>
+
+              <!-- Erreur globale -->
+              @if (erreur()) {
+                <div class="bg-red-50 border border-red-200
+                            rounded-xl px-4 py-3 text-sm text-red-600
+                            mb-5 flex items-center gap-2">
+                  <svg class="w-4 h-4 shrink-0" fill="none"
+                       stroke="currentColor" viewBox="0 0 24 24">
+                    <circle cx="12" cy="12" r="10"/>
+                    <path d="M12 8v4m0 4h.01"/>
+                  </svg>
+                  {{ erreur() }}
+                </div>
+              }
+
+              <form [formGroup]="formEtape1" class="space-y-5">
+
+                <!-- Nom du club -->
+                <div>
+                  <label class="block text-sm font-medium
+                                text-gray-700 mb-1.5">
+                    Nom du club
+                    <span class="text-red-500 ml-0.5">*</span>
+                  </label>
+                  <input type="text"
+                         formControlName="nom"
+                         placeholder="Ex: Club d'Intelligence Artificielle"
+                         class="w-full px-4 py-3 border rounded-xl
+                                text-sm text-gray-900
+                                placeholder-gray-400 focus:outline-none
+                                focus:ring-2 focus:ring-primary-700
+                                transition-all duration-200"
+                         [class.border-red-300]="nom?.invalid && nom?.touched"
+                         [class.border-gray-200]="!(nom?.invalid && nom?.touched)"/>
+                  @if (nom?.invalid && nom?.touched) {
+                    <p class="text-xs text-red-500 mt-1">
+                      @if (nom?.errors?.['required']) {
+                        Le nom est obligatoire.
+                      } @else if (nom?.errors?.['minlength']) {
+                        Minimum 3 caractères.
+                      }
+                    </p>
+                  }
+                </div>
+
+                <!-- Filière -->
+                <div>
+                  <label class="block text-sm font-medium
+                                text-gray-700 mb-1.5">
+                    Filière concernée
+                    <span class="text-red-500 ml-0.5">*</span>
+                  </label>
+                  <div class="relative">
+                    <select formControlName="filiere"
+                            class="w-full px-4 py-3 border rounded-xl
+                                   text-sm text-gray-900
+                                   focus:outline-none focus:ring-2
+                                   focus:ring-primary-700
+                                   transition-all duration-200
+                                   appearance-none bg-white cursor-pointer"
+                            [class.border-red-300]="filiere?.invalid && filiere?.touched"
+                            [class.border-gray-200]="!(filiere?.invalid && filiere?.touched)">
+                      <option value="" disabled selected>
+                        Sélectionnez une filière
+                      </option>
+                      @for (f of filieres; track f.valeur) {
+                        <option [value]="f.valeur">{{ f.label }}</option>
+                      }
+                    </select>
+                    <!-- Chevron -->
+                    <div class="absolute inset-y-0 right-0 pr-3
+                                flex items-center pointer-events-none">
+                      <svg class="w-4 h-4 text-gray-400" fill="none"
+                           stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round"
+                              stroke-linejoin="round" stroke-width="2"
+                              d="M19 9l-7 7-7-7"/>
+                      </svg>
+                    </div>
+                  </div>
+                  @if (filiere?.invalid && filiere?.touched) {
+                    <p class="text-xs text-red-500 mt-1">
+                      Sélectionnez une filière.
+                    </p>
+                  }
+                </div>
+
+                <!-- Mission -->
+                <div>
+                  <label class="block text-sm font-medium
+                                text-gray-700 mb-1.5">
+                    Mission et objectifs
+                    <span class="text-red-500 ml-0.5">*</span>
+                  </label>
+                  <textarea formControlName="mission"
+                            rows="5"
+                            placeholder="Décrivez en quelques phrases le but
+de votre club et ce que vous comptez accomplir..."
+                            class="w-full px-4 py-3 border rounded-xl
+                                   text-sm text-gray-900
+                                   placeholder-gray-400 focus:outline-none
+                                   focus:ring-2 focus:ring-primary-700
+                                   transition-all duration-200 resize-none"
+                            [class.border-red-300]="mission?.invalid && mission?.touched"
+                            [class.border-gray-200]="!(mission?.invalid && mission?.touched)">
+                  </textarea>
+                  <div class="flex items-center justify-between mt-1">
+                    @if (mission?.invalid && mission?.touched) {
+                      <p class="text-xs text-red-500">
+                        Minimum 20 caractères.
+                      </p>
+                    } @else {
+                      <span></span>
+                    }
+                    <span class="text-xs text-gray-400">
+                      {{ missionRestant }} caractères restants
+                    </span>
+                  </div>
+                  <p class="text-xs text-gray-400 mt-1 italic">
+                    Cette description sera visible par tous les
+                    membres potentiels.
+                  </p>
+                </div>
+
+              </form>
+
+            </div>
+          }
+
+          <!-- ══════════════════════════════════════════
+               ÉTAPE 2 — Personnalisation
+               ══════════════════════════════════════════ -->
+          @if (etapeCourante() === 2) {
+            <div class="bg-white rounded-2xl border border-gray-100
+                        p-6 md:p-8 step-anim">
+
+              <div class="mb-6">
+                <h2 class="text-lg font-bold text-gray-900">
+                  Personnalisation
+                </h2>
+                <p class="text-sm text-gray-500 mt-1">
+                  Ajoutez un logo pour identifier votre club.
+                </p>
+              </div>
+
+              <!-- Zone upload logo -->
+              @if (!logoPreview()) {
+                <label class="block cursor-pointer upload-zone">
+                  <div class="border-2 border-dashed border-gray-200
+                              rounded-2xl p-10 text-center
+                              hover:border-primary-700
+                              hover:bg-purple-50/30
+                              transition-all duration-300">
+                    <div class="w-14 h-14 bg-gray-100 rounded-full
+                                flex items-center justify-center
+                                mx-auto mb-4">
+                      <svg class="w-7 h-7 text-gray-400" fill="none"
+                           stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round"
+                              stroke-linejoin="round" stroke-width="1.5"
+                              d="M4 16l4.586-4.586a2 2 0 012.828 0
+                                 L16 16m-2-2l1.586-1.586a2 2 0 012.828
+                                 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2
+                                 V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2
+                                 2 0 002 2z"/>
+                      </svg>
+                    </div>
+                    <p class="text-sm font-medium text-gray-700 mb-1">
+                      Cliquez pour ajouter ou glissez-déposez
+                    </p>
+                    <p class="text-xs text-gray-400">
+                      PNG, JPG ou WEBP (Max. 2Mo)
+                    </p>
+                  </div>
+                  <input type="file" class="hidden"
+                         accept="image/png,image/jpeg,image/webp"
+                         (change)="onLogoChange($event)"/>
+                </label>
+              } @else {
+                <!-- Aperçu du logo -->
+                <div class="flex flex-col items-center gap-4
+                            logo-preview-anim">
+                  <div class="relative">
+                    <img [src]="logoPreview()!"
+                         alt="Aperçu du logo"
+                         class="w-32 h-32 rounded-full object-cover
+                                border-4 border-purple-100
+                                shadow-lg"/>
+                    <button (click)="supprimerLogo()"
+                            class="absolute -top-2 -right-2
+                                   w-7 h-7 bg-red-500 rounded-full
+                                   flex items-center justify-center
+                                   text-white hover:bg-red-600
+                                   transition-colors duration-200
+                                   shadow-md">
+                      <svg class="w-4 h-4" fill="none"
+                           stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round"
+                              stroke-linejoin="round" stroke-width="2"
+                              d="M6 18L18 6M6 6l12 12"/>
+                      </svg>
+                    </button>
+                  </div>
+                  <p class="text-sm text-gray-500">
+                    Logo sélectionné ✓
+                  </p>
+                  <label class="text-sm text-primary-700 font-medium
+                                cursor-pointer hover:text-primary-800
+                                transition-colors">
+                    Changer le logo
+                    <input type="file" class="hidden"
+                           accept="image/png,image/jpeg,image/webp"
+                           (change)="onLogoChange($event)"/>
+                  </label>
+                </div>
+              }
+
+              <!-- Encart info optionnel -->
+              <div class="mt-6 bg-gray-50 rounded-xl px-4 py-3
+                          flex items-center gap-2">
+                <svg class="w-4 h-4 text-gray-400 shrink-0"
+                     fill="none" stroke="currentColor"
+                     viewBox="0 0 24 24">
+                  <circle cx="12" cy="12" r="10"/>
+                  <path d="M12 16v-4m0-4h.01"/>
+                </svg>
+                <p class="text-xs text-gray-500">
+                  Le logo est optionnel. Vous pourrez le modifier
+                  ultérieurement depuis les paramètres du club.
+                </p>
+              </div>
+
+            </div>
+          }
+
+          <!-- ══════════════════════════════════════════
+               ÉTAPE 3 — Confirmation
+               ══════════════════════════════════════════ -->
+          @if (etapeCourante() === 3) {
+            <div class="bg-white rounded-2xl border border-gray-100
+                        p-6 md:p-8 step-anim">
+
+              <div class="mb-6">
+                <h2 class="text-lg font-bold text-gray-900">
+                  Confirmation
+                </h2>
+                <p class="text-sm text-gray-500 mt-1">
+                  Vérifiez les informations avant de soumettre.
+                </p>
+              </div>
+
+              <!-- Récapitulatif -->
+              <div class="space-y-4 mb-8">
+
+                <!-- Logo + nom -->
+                <div class="flex items-center gap-4 p-4 bg-gray-50
+                            rounded-xl recap-item">
+                  <div class="w-14 h-14 rounded-full bg-purple-100
+                              flex items-center justify-center
+                              shrink-0 overflow-hidden border-2
+                              border-purple-200">
+                    @if (logoPreview()) {
+                      <img [src]="logoPreview()!" alt="Logo"
+                           class="w-full h-full object-cover"/>
+                    } @else {
+                      <span class="text-xl font-black text-primary-700">
+                        {{ formEtape1.value.nom?.[0]?.toUpperCase() }}
+                      </span>
+                    }
+                  </div>
+                  <div>
+                    <p class="font-bold text-gray-900 text-lg">
+                      {{ formEtape1.value.nom }}
+                    </p>
+                    <p class="text-sm text-primary-700 font-medium">
+                      {{ getFiliereLabel(formEtape1.value.filiere) }}
+                    </p>
+                  </div>
+                </div>
+
+                <!-- Mission -->
+                <div class="p-4 bg-gray-50 rounded-xl recap-item"
+                     style="animation-delay: 0.1s">
+                  <p class="text-xs font-bold text-gray-400 uppercase
+                            tracking-wider mb-2">
+                    Mission
+                  </p>
+                  <p class="text-sm text-gray-700 leading-relaxed">
+                    {{ formEtape1.value.mission }}
+                  </p>
+                </div>
+
+                <!-- Info validation -->
+                <div class="flex items-start gap-3 bg-purple-50
+                            border border-purple-200 rounded-xl p-4
+                            recap-item"
+                     style="animation-delay: 0.2s">
+                  <svg class="w-5 h-5 text-primary-700 shrink-0 mt-0.5"
+                       fill="none" stroke="currentColor"
+                       viewBox="0 0 24 24">
+                    <circle cx="12" cy="12" r="10"/>
+                    <path d="M12 16v-4m0-4h.01"/>
+                  </svg>
+                  <div>
+                    <p class="text-sm font-semibold text-primary-700 mb-1">
+                      Processus de validation
+                    </p>
+                    <p class="text-xs text-primary-700 leading-relaxed">
+                      Votre demande sera examinée par l'administration
+                      de l'ISJ. Vous recevrez une notification dès
+                      qu'une décision sera prise. Le délai habituel
+                      est de 24 à 48 heures.
+                    </p>
+                  </div>
+                </div>
+
+              </div>
+
+              <!-- Bouton soumettre -->
+              <button (click)="soumettre()"
+                      [disabled]="chargement()"
+                      class="w-full flex items-center justify-center
+                             gap-2 bg-primary-700 hover:bg-primary-800
+                             disabled:bg-primary-400 text-white
+                             font-semibold py-3.5 rounded-xl
+                             transition-all duration-200 btn-submit">
+                @if (chargement()) {
+                  <svg class="w-4 h-4 animate-spin" fill="none"
+                       viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12"
+                            r="10" stroke="currentColor"
+                            stroke-width="4"/>
+                    <path class="opacity-75" fill="currentColor"
+                          d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373
+                             0 12h4zm2 5.291A7.962 7.962 0 014
+                             12H0c0 3.042 1.135 5.824 3 7.938
+                             l3-2.647z"/>
+                  </svg>
+                  Soumission en cours...
+                } @else {
+                  <svg class="w-4 h-4" fill="none"
+                       stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round"
+                          stroke-width="2" d="M5 13l4 4L19 7"/>
+                  </svg>
+                  Soumettre la demande
+                }
+              </button>
+
+            </div>
+          }
+
+          <!-- ══════════════════════════════════════════
+               BOUTONS NAVIGATION
+               ══════════════════════════════════════════ -->
+          @if (!succes()) {
+            <div class="flex items-center justify-between mt-5">
+
+              <button (click)="etapePrecedente()"
+                      [disabled]="etapeCourante() === 1"
+                      class="inline-flex items-center gap-2
+                             text-sm font-medium text-gray-500
+                             hover:text-gray-700 disabled:opacity-30
+                             disabled:cursor-not-allowed
+                             transition-all duration-200 px-4 py-2">
+                <svg class="w-4 h-4" fill="none"
+                     stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round"
+                        stroke-width="2" d="M15 19l-7-7 7-7"/>
+                </svg>
+                Précédent
+              </button>
+
+              @if (etapeCourante() < 3) {
+                <button (click)="etapeSuivante()"
+                        class="inline-flex items-center gap-2
+                               bg-primary-700 hover:bg-primary-800
+                               text-white text-sm font-semibold
+                               px-6 py-2.5 rounded-xl
+                               transition-all duration-200 btn-submit">
+                  Suivant
+                  <svg class="w-4 h-4" fill="none"
+                       stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round"
+                          stroke-width="2" d="M9 5l7 7-7 7"/>
+                  </svg>
+                </button>
+              }
+
+            </div>
+          }
+
+        }
+
+        <!-- Lien guide -->
+        <p class="text-center text-sm text-gray-400 mt-6">
+          Besoin d'aide pour remplir ce formulaire ?
+          <a href="#"
+             class="text-primary-700 font-medium
+                    hover:text-primary-800 transition-colors">
+            Consultez le guide de création
+          </a>
+        </p>
+
+      </div>
+
+    </main>
+  </div>
+
+  <!-- Footer -->
+  <footer class="ml-0 md:ml-52 py-4 px-6 border-t border-gray-100">
+    <p class="text-xs text-gray-400 text-center">
+      © {{ annee }} ClubISJ - Institut Universitaire Saint Jean
+      de Yaoundé. Tous droits réservés.
+    </p>
+  </footer>
+
+</div>

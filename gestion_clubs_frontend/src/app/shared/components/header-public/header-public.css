@@ -1,0 +1,21 @@
+/* src/app/shared/components/header-public/header-public.css */
+
+/* Animation d'entrée du header au chargement */
+:host {
+  display: block;
+}
+
+header {
+  animation: slideDown 0.4s ease-out forwards;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-100%);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
