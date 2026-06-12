@@ -4,7 +4,7 @@
 
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { environment } from '../../../environments/environement';
+import { environment } from '../../../environments/environement.prod';
 import { Notification } from '../models/notification.model';
 
 @Injectable({ providedIn: 'root' })

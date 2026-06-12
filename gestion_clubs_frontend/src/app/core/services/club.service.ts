@@ -6,7 +6,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { environment } from '../../../environments/environement';
+import { environment } from '../../../environments/environement.prod';
 import { Club,
          RoleClub, 
          Adhesion,

@@ -9,7 +9,7 @@ import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { tap, switchMap } from 'rxjs/operators';
 import { Observable } from 'rxjs';
-import { environment } from '../../../environments/environement';
+import { environment } from '../../../environments/environement.prod';
 import {
   Utilisateur,
   AuthResponse,
